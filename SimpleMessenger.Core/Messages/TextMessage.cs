@@ -4,9 +4,9 @@ using System.Text;
 
 namespace SimpleMessenger.Core;
 
-public class TextMessage : IServerCommand
+public class TextMessage : IMessage
 {
-    public CommandType Type { get; } = CommandType.Text;
+    public MessageType Type { get; } = MessageType.Text;
     public string Text { get; protected set; }
 
     public TextMessage() { }
@@ -24,11 +24,10 @@ public class TextMessage : IServerCommand
     {
         stream.Write(Encoding.ASCII.GetBytes(Text));
     }
-    public IServerCommand Read(Stream stream)
+    public void Read(Stream stream)
     {
         var reader = new StreamReader(stream, Encoding.ASCII);
         Text = reader.ReadToEnd();
-        return this;
     }
 
     public override string ToString() => Text;

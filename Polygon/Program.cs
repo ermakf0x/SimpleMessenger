@@ -9,8 +9,9 @@ class Program
         var client = new SMClient("127.0.0.1", 7777);
         client.Connect();
 
-        client.Send(new TextMessage("test"));
-        client.Send(new TextMessage("test2"));
+        client.SendAsync(new TextMessage("test"));
+        client.SendAsync(new TextMessage("test234"));
+        client.SendAsync(new TextMessage("test2sdfsdfsf34"));
         Console.ReadLine();
         //while (true)
         //{

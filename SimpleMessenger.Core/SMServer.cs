@@ -11,7 +11,15 @@ public class SMServer
 {
     readonly TcpListener _tcpListener = new(IPAddress.Any, 7777);
     readonly List<Task> _newConnection = new();
-    readonly ICommandSerializer _serializer = new CommandSerializer();
+    readonly IMessageSerializer _serializer = new MessageSerializer();
+    readonly IMessageProcessor _messageProcessor;
+
+    public SMServer()
+    {
+        _messageProcessor = new MessageProcessorBuilder()
+            .Bind<TextMessage>(Console.WriteLine)
+            .Build();
+    }
 
     public void Start()
     {
@@ -30,7 +38,7 @@ public class SMServer
     {
         Task t = null;
 
-        t = Task.Factory.StartNew(() =>
+        t = Task.Factory.StartNew(async () =>
         {
             using var stream = tcpClient.GetStream();
 
@@ -44,8 +52,8 @@ public class SMServer
                         Thread.Sleep(1);
                         continue;
                     }
-                    var command = _serializer.Desirialize(stream);
-                    Console.WriteLine($"New message: {command}");
+                    var message = await Helper.ReadMessageAsync(stream, _serializer);
+                    _messageProcessor.Push(message);
                 }
                 catch (Exception ex)
                 {
@@ -55,7 +63,6 @@ public class SMServer
                         break;
                     }
                     Console.WriteLine(ex.Message);
-                    break;
                 }
             }
 

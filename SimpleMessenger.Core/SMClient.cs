@@ -1,15 +1,17 @@
 ﻿using System.Net.Sockets;
+using System.Threading.Tasks;
 
 namespace SimpleMessenger.Core;
 
-    public class SMClient
-    {
+public class SMClient
+{
     public string Ip { get; }
     public int Port { get; }
     public bool Connected => _tcpClient != null && _tcpClient.Connected;
 
     TcpClient _tcpClient;
     NetworkStream _stream;
+    readonly IMessageSerializer _serializer = new MessageSerializer();
 
     public SMClient(string ip, int port)
     {
@@ -18,25 +20,15 @@ namespace SimpleMessenger.Core;
     }
 
     public bool Connect()
-        {
+    {
         _tcpClient = new TcpClient(Ip, Port);
         _stream = _tcpClient.GetStream();
         return true;
-        }
+    }
 
-    public void Send(IServerCommand commaned)
-        {
-        if (!Connected) return;
-
-        var serializer = new CommandSerializer();
-        serializer.Serialize(_stream, commaned);
-        }
-    public IServerCommand Recive()
+    public Task SendAsync(IMessage command)
     {
         if (!Connected) return null;
-
-        using var stream = _tcpClient.GetStream();
-
-        return null;
+        return Helper.WriteMessageAsync(_stream, _serializer, command);
     }
 }
