@@ -5,7 +5,7 @@ VisualStudioVersion = 17.0.31919.166
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleMessenger.Core", "SimpleMessenger.Core\SimpleMessenger.Core.csproj", "{C310A20B-3ED4-4E41-B38E-FFA629FE2D0E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Polygon", "Polygon\Polygon.csproj", "{13190452-9B7C-4DF0-B628-AC58106A2E65}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Polygon", "Polygon\Polygon.csproj", "{13190452-9B7C-4DF0-B628-AC58106A2E65}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

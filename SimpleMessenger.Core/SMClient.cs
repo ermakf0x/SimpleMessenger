@@ -2,8 +2,8 @@
 
 namespace SimpleMessenger.Core;
 
-public class SMClient
-{
+    public class SMClient
+    {
     public string Ip { get; }
     public int Port { get; }
     public bool Connected => _tcpClient != null && _tcpClient.Connected;
@@ -18,19 +18,19 @@ public class SMClient
     }
 
     public bool Connect()
-    {
+        {
         _tcpClient = new TcpClient(Ip, Port);
         _stream = _tcpClient.GetStream();
         return true;
-    }
+        }
 
     public void Send(IServerCommand commaned)
-    {
+        {
         if (!Connected) return;
 
         var serializer = new CommandSerializer();
         serializer.Serialize(_stream, commaned);
-    }
+        }
     public IServerCommand Recive()
     {
         if (!Connected) return null;
