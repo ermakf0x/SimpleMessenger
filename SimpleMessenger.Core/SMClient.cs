@@ -26,9 +26,17 @@ public class SMClient
         return true;
     }
 
-    public Task SendAsync(IMessage command)
+    public Task SendAsync(IMessage message)
     {
         if (!Connected) return null;
-        return Helper.WriteMessageAsync(_stream, _serializer, command);
+        return Helper.WriteMessageAsync(_stream, _serializer, message);
+    }
+    public ValueTask<IMessage> ReciveAsync()
+    {
+        if (Connected && _stream.DataAvailable)
+        {
+            return Helper.ReadMessageAsync(_stream, _serializer);
+        }
+        return ValueTask.FromResult<IMessage>(null);
     }
 }

@@ -21,7 +21,7 @@ internal static class Helper
         return ms.CopyToAsync(stream);
     }
 
-    public static async Task<IMessage> ReadMessageAsync(Stream stream, IMessageSerializer serializer)
+    public static async ValueTask<IMessage> ReadMessageAsync(Stream stream, IMessageSerializer serializer)
     {
         await stream.ReadAsync(buffer);
         var sizeBlock = BitConverter.ToInt32(buffer, 0) - SIZE;

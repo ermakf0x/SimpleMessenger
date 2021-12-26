@@ -12,11 +12,11 @@ public class SMServer
     readonly TcpListener _tcpListener = new(IPAddress.Any, 7777);
     readonly List<Task> _newConnection = new();
     readonly IMessageSerializer _serializer = new MessageSerializer();
-    readonly IMessageProcessor _messageProcessor;
+    readonly IMessageProcessor<ServerMessage> _messageProcessor;
 
     public SMServer()
     {
-        _messageProcessor = new MessageProcessorBuilder()
+        _messageProcessor = new MessageProcessorBuilder<ServerMessage>()
             .Bind<TextMessage>(Console.WriteLine)
             .Build();
     }
@@ -53,7 +53,7 @@ public class SMServer
                         continue;
                     }
                     var message = await Helper.ReadMessageAsync(stream, _serializer);
-                    _messageProcessor.Push(message);
+                    _messageProcessor.Push(new(message, stream, _serializer));
                 }
                 catch (Exception ex)
                 {
@@ -69,5 +69,17 @@ public class SMServer
             _newConnection.Remove(t);
         });
         _newConnection.Add(t);
+    }
+
+    class ServerMessage : Message
+    {
+        public NetworkStream Stream { get; }
+        public IMessageSerializer MessageSerializer { get; }
+
+        public ServerMessage(IMessage message, NetworkStream stream, IMessageSerializer messageSerializer) : base(message)
+        {
+            Stream = stream;
+            MessageSerializer = messageSerializer;
+        }
     }
 }

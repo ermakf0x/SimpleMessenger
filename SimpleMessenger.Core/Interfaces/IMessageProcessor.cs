@@ -1,7 +1,7 @@
 ﻿namespace SimpleMessenger.Core
 {
-    public interface IMessageProcessor
+    public interface IMessageProcessor<TMsg> where TMsg : Message
     {
-        void Push(IMessage message);
+        void Push(TMsg message);
     }
 }

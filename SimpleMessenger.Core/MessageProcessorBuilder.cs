@@ -3,11 +3,12 @@ using System.Collections.Generic;
 
 namespace SimpleMessenger.Core;
 
-public sealed class MessageProcessorBuilder
+public sealed class MessageProcessorBuilder<TMsg> where TMsg : Message
 {
-    readonly Dictionary<Type, IMessageHandler> _handlers = new();
+    readonly Dictionary<Type, IMessageHandler<TMsg>> _handlers = new();
+    public static MessageProcessorBuilder<Message> Default => new();
 
-    public MessageProcessorBuilder Bind<T>(IMessageHandler handler) where T : IMessage
+    public MessageProcessorBuilder<TMsg> Bind<T>(IMessageHandler<TMsg> handler) where T : IMessage
     {
         var msgType = typeof(T);
         if (!_handlers.ContainsKey(msgType))
@@ -17,31 +18,33 @@ public sealed class MessageProcessorBuilder
 
         return this;
     }
-    public MessageProcessorBuilder Bind<T>(Action<T> action) where T : IMessage => Bind<T>(new DelegateMessageHandler<T>(action));
-
-    public IMessageProcessor Build() => new MessageProcessor(_handlers);
-
-    class MessageProcessor : IMessageProcessor
+    public MessageProcessorBuilder<TMsg> Bind<T>(Action<T> action) where T : IMessage
     {
-        readonly Dictionary<Type, IMessageHandler> _handlers;
+        return Bind<T>(new DelegateMessageHandler<T>(action));
+    }
 
-        public MessageProcessor(Dictionary<Type, IMessageHandler> handlers)
+    public IMessageProcessor<TMsg> Build() => new MessageProcessor(_handlers);
+
+    class MessageProcessor : IMessageProcessor<TMsg>
+    {
+        readonly Dictionary<Type, IMessageHandler<TMsg>> _handlers;
+
+        public MessageProcessor(Dictionary<Type, IMessageHandler<TMsg>> handlers)
         {
             _handlers = handlers;
         }
 
-        public void Push(IMessage message)
+        public void Push(TMsg message)
         {
             if (message == null) return;
 
-            if (_handlers.TryGetValue(message.GetType(), out var handler))
+            if (_handlers.TryGetValue(message.MSG.GetType(), out var handler))
             {
                 handler.Process(message);
             }
         }
     }
-
-    class DelegateMessageHandler<T> : IMessageHandler where T : IMessage
+    class DelegateMessageHandler<T> : IMessageHandler<TMsg>where T : IMessage
     {
         readonly Action<T> action;
 
@@ -50,9 +53,9 @@ public sealed class MessageProcessorBuilder
             this.action = action ?? throw new ArgumentNullException(nameof(action));
         }
 
-        public void Process(IMessage message)
+        public void Process(TMsg message)
         {
-            action.Invoke((T)message);
+            action.Invoke((T)message.MSG);
         }
     }
 }
