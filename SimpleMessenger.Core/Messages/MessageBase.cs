@@ -8,6 +8,11 @@ public abstract class MessageBase : IMessage
     public abstract MessageType Type { get; }
     public Guid Token { get; private set; }
 
+    public MessageBase(Guid token)
+    {
+        Token = token;
+    }
+
     public virtual void Read(Stream stream)
     {
         var buf = new byte[16];

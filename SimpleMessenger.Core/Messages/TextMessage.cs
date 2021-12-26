@@ -9,8 +9,8 @@ public class TextMessage : MessageBase
     public override MessageType Type { get; } = MessageType.Text;
     public string Text { get; protected set; }
 
-    public TextMessage() { }
-    public TextMessage(string text)
+    public TextMessage() : base(Guid.Empty) { }
+    public TextMessage(Guid token, string text) : base(token)
     {
         if (string.IsNullOrEmpty(text))
         {
