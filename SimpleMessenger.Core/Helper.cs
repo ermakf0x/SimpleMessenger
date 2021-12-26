@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace SimpleMessenger.Core;
 
-internal static class Helper
+public static class Helper
 {
     const int SIZE = sizeof(long);
     static readonly byte[] buffer = new byte[SIZE];

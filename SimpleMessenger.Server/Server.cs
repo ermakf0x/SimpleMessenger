@@ -1,20 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using SimpleMessenger.Core;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace SimpleMessenger.Core;
+namespace SimpleMessenger.Server;
 
-public class SMServer
+public class Server
 {
     readonly TcpListener _tcpListener = new(IPAddress.Any, 7777);
     readonly List<Task> _newConnection = new();
     readonly IMessageSerializer _serializer = new MessageSerializer();
     readonly IMessageProcessor<ServerMessage> _messageProcessor;
 
-    public SMServer()
+    public Server()
     {
         _messageProcessor = new MessageProcessorBuilder<ServerMessage>()
             .Bind<TextMessage>(Console.WriteLine)
@@ -41,19 +38,24 @@ public class SMServer
         t = Task.Factory.StartNew(async () =>
         {
             using var stream = tcpClient.GetStream();
+            var serverMessage = new ServerMessage
+            {
+                Stream = stream,
+                MessageSerializer = _serializer
+            };
 
             while (tcpClient.Connected)
             {
                 try
                 {
-
                     if(!stream.DataAvailable)
                     {
                         Thread.Sleep(1);
                         continue;
                     }
-                    var message = await Helper.ReadMessageAsync(stream, _serializer);
-                    _messageProcessor.Push(new(message, stream, _serializer));
+                    var newMessage = await Helper.ReadMessageAsync(stream, _serializer);
+                    serverMessage.MSG = newMessage;
+                    _messageProcessor.Push(serverMessage);
                 }
                 catch (Exception ex)
                 {
@@ -73,13 +75,7 @@ public class SMServer
 
     class ServerMessage : Message
     {
-        public NetworkStream Stream { get; }
-        public IMessageSerializer MessageSerializer { get; }
-
-        public ServerMessage(IMessage message, NetworkStream stream, IMessageSerializer messageSerializer) : base(message)
-        {
-            Stream = stream;
-            MessageSerializer = messageSerializer;
-        }
+        public NetworkStream Stream { get; init; }
+        public IMessageSerializer MessageSerializer { get; init; }
     }
 }
