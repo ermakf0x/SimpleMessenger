@@ -8,3 +8,10 @@ public interface IMessage
     public void Write(Stream stream);
     public void Read(Stream stream);
 }
+
+public enum MessageType : int
+{
+    Authorization,
+    Error,
+    Text
+}

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace SimpleMessenger.Core
+namespace SimpleMessenger.Core.Messages
 {
     public class AuthorizationMessage : IMessage
     {

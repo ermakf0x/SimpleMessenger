@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SimpleMessenger.Core\SimpleMessenger.Core.csproj" />
+    <ProjectReference Include="..\SimpleMessenger.Server\SimpleMessenger.Server.csproj" />
   </ItemGroup>
 
 </Project>

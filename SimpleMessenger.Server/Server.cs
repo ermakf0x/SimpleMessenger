@@ -1,4 +1,5 @@
 ﻿using SimpleMessenger.Core;
+using SimpleMessenger.Core.Messages;
 using System.Net;
 using System.Net.Sockets;
 
@@ -71,11 +72,5 @@ public class Server
             _newConnection.Remove(t);
         });
         _newConnection.Add(t);
-    }
-
-    class ServerMessage : Message
-    {
-        public NetworkStream Stream { get; init; }
-        public IMessageSerializer MessageSerializer { get; init; }
     }
 }

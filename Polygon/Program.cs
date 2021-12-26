@@ -1,4 +1,6 @@
 ﻿using SimpleMessenger.Core;
+using SimpleMessenger.Core.Messages;
+using SimpleMessenger.Server;
 
 class Program
 {
@@ -26,7 +28,7 @@ class Program
     {
         new Thread(new ThreadStart(() =>
         {
-            var server = new SMServer();
+            var server = new Server();
             server.Start();
         })).Start();
     }
