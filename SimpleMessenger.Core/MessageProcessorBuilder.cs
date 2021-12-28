@@ -18,6 +18,12 @@ public sealed class MessageProcessorBuilder<TMsg> where TMsg : Message
 
         return this;
     }
+    public MessageProcessorBuilder<TMsg> Bind<T, THandler>()
+        where T : IMessage
+        where THandler : IMessageHandler<TMsg>, new()
+    {
+        return Bind<T>(new THandler());
+    }
     public MessageProcessorBuilder<TMsg> Bind<T>(Action<T> action) where T : IMessage
     {
         return Bind<T>(new DelegateMessageHandler<T>(action));
@@ -44,7 +50,7 @@ public sealed class MessageProcessorBuilder<TMsg> where TMsg : Message
             }
         }
     }
-    class DelegateMessageHandler<T> : IMessageHandler<TMsg>where T : IMessage
+    class DelegateMessageHandler<T> : IMessageHandler<TMsg> where T : IMessage
     {
         readonly Action<T> action;
 

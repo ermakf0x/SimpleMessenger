@@ -1,5 +1,6 @@
 ﻿using SimpleMessenger.Core;
 using SimpleMessenger.Core.Messages;
+using SimpleMessenger.Server.MessageHandlers;
 using System.Net;
 using System.Net.Sockets;
 
@@ -15,7 +16,8 @@ public class Server
     public Server()
     {
         _messageProcessor = new MessageProcessorBuilder<ServerMessage>()
-            .Bind<TextMessage>(Console.WriteLine)
+            .Bind2<TextMessage>(text => Console.WriteLine($"[SERVER] {text}"))
+            .Bind<AuthorizationMessage, AuthMessageHandler>()
             .Build();
     }
 
@@ -34,7 +36,7 @@ public class Server
 
     void AddNewConnection(TcpClient tcpClient)
     {
-        Task t = null;
+        Task? t = null;
 
         t = Task.Factory.StartNew(async () =>
         {

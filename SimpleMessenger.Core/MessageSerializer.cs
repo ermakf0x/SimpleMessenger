@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SimpleMessenger.Core.Messages;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -8,7 +9,10 @@ public class MessageSerializer : IMessageSerializer
 {
     static readonly Dictionary<MessageType, Type> table = new()
     {
-        { MessageType.Text, typeof(TextMessage) }
+        { MessageType.Authorization, typeof(AuthorizationMessage) },
+        { MessageType.AuthSuccess, typeof(AuthSuccessMessage) },
+        { MessageType.Text, typeof(TextMessage) },
+        { MessageType.Error, typeof(ErrorMessage) },
     };
 
     public void Serialize(Stream stream, IMessage message)

@@ -6,12 +6,7 @@ namespace SimpleMessenger.Core.Messages;
 public abstract class MessageBase : IMessage
 {
     public abstract MessageType Type { get; }
-    public Guid Token { get; private set; }
-
-    public MessageBase(Guid token)
-    {
-        Token = token;
-    }
+    public Guid Token { get; set; }
 
     public virtual void Read(Stream stream)
     {

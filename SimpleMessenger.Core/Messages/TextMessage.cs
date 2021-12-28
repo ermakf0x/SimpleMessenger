@@ -7,10 +7,10 @@ namespace SimpleMessenger.Core.Messages;
 public class TextMessage : MessageBase
 {
     public override MessageType Type { get; } = MessageType.Text;
-    public string Text { get; protected set; }
+    public string Text { get; set; }
 
-    public TextMessage() : base(Guid.Empty) { }
-    public TextMessage(Guid token, string text) : base(token)
+    public TextMessage() { }
+    public TextMessage(Guid token, string text)
     {
         if (string.IsNullOrEmpty(text))
         {
@@ -18,6 +18,7 @@ public class TextMessage : MessageBase
         }
 
         Text = text;
+        Token = token;
     }
 
     public override void Write(Stream stream)

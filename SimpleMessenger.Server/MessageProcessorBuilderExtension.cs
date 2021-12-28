@@ -12,6 +12,26 @@ static class MessageProcessorBuilderExtension
     {
         return builder.Bind<T>(new ServerMessageHandler(handler));
     }
+    public static MessageProcessorBuilder<ServerMessage> Bind2<T>(this MessageProcessorBuilder<ServerMessage> builder, Action<T> action)
+        where T : IMessage
+    {
+        return builder.Bind<T>(new ServerMessageHandler(new DelegateMessageHandler<T>(action)));
+    }
+
+    class DelegateMessageHandler<T> : IMessageHandler<ServerMessage> where T : IMessage
+    {
+        readonly Action<T> action;
+
+        public DelegateMessageHandler(Action<T> action)
+        {
+            this.action = action ?? throw new ArgumentNullException(nameof(action));
+        }
+
+        public void Process(ServerMessage message)
+        {
+            action.Invoke((T)message.MSG);
+        }
+    }
 
     class ServerMessageHandler : IMessageHandler<ServerMessage>
     {
@@ -28,7 +48,7 @@ static class MessageProcessorBuilderExtension
             {
                 if (msg.Token == Guid.Empty)
                 {
-                    message.MessageSerializer.Serialize(message.Stream, ErrorMsgHelper.NotAuthorized);
+                    Helper.WriteMessageAsync(message.Stream, message.MessageSerializer, ErrorMsgHelper.NotAuthorized);
                     return;
                 }
                 handler.Process(message);

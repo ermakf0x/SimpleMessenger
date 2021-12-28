@@ -25,14 +25,14 @@ public class ErrorMessage : IMessage
         var buf = new byte[sizeof(int)];
         stream.Read(buf, 0, buf.Length);
         Code = (ErrorMessageType)BitConverter.ToInt32(buf, 0);
-        var reader = new StreamReader(stream, Encoding.ASCII);
+        var reader = new StreamReader(stream, Encoding.UTF8);
         Message = reader.ReadToEnd();
     }
 
     public void Write(Stream stream)
     {
         stream.Write(BitConverter.GetBytes((int)Code));
-        stream.Write(Encoding.ASCII.GetBytes(Message));
+        stream.Write(Encoding.UTF8.GetBytes(Message));
     }
 
     public override string ToString() => $"Error message: \'{Message}\'";

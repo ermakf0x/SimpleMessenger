@@ -8,12 +8,8 @@ class Program
     {
         StartTestServer();
         Thread.Sleep(100);
-        var client = new SMClient("127.0.0.1", 7777);
-        client.Connect();
+        StartTestClient();
 
-        client.SendAsync(new TextMessage("test"));
-        client.SendAsync(new TextMessage("test234"));
-        client.SendAsync(new TextMessage("test2sdfsdfsf34"));
         Console.ReadLine();
         //while (true)
         //{
@@ -23,6 +19,41 @@ class Program
         //    client.Send(new TextMessage(message));
         //}
     }
+
+    static async void StartTestClient()
+    {
+        var client = new SMClient("127.0.0.1", 7777);
+        client.Connect();
+        IMessage? msg;
+
+        await client.SendAsync(new TextMessage { Text = "test" });
+        await ReciveClientMessageAsync(client);
+
+        await client.SendAsync(new AuthorizationMessage());
+        msg = await ReciveClientMessageAsync(client);
+
+        if(msg is AuthSuccessMessage msg2)
+        {
+            var token = msg2.Token;
+            await client.SendAsync(new TextMessage { Text = "text", Token = token });
+        }
+    }
+    static async Task<IMessage?> ReciveClientMessageAsync(SMClient client)
+    {
+        IMessage? retMsg;
+        do
+        {
+            retMsg = await client.ReciveAsync();
+            if (retMsg != null)
+            {
+                Console.WriteLine($"[CLIENT] {retMsg}");
+                return retMsg;
+            }
+            Thread.Sleep(1);
+        } while (retMsg == null);
+        return null;
+    }
+
 
     static void StartTestServer()
     {

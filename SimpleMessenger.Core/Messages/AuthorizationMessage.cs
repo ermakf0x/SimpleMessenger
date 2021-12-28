@@ -1,26 +1,21 @@
 ﻿using System;
 using System.IO;
 
-namespace SimpleMessenger.Core.Messages
+namespace SimpleMessenger.Core.Messages;
+
+public class AuthorizationMessage : IMessage
 {
-    public class AuthorizationMessage : IMessage
+    public MessageType Type => MessageType.Authorization;
+
+    public AuthorizationMessage() { }
+
+    public void Read(Stream stream)
     {
-        public MessageType Type => MessageType.Authorization;
+        //throw new NotImplementedException();
+    }
 
-        //public AuthorizationMessage() { }
-        public AuthorizationMessage()
-        {
-
-        }
-
-        public void Read(Stream stream)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Write(Stream stream)
-        {
-            throw new NotImplementedException();
-        }
+    public void Write(Stream stream)
+    {
+        //throw new NotImplementedException();
     }
 }

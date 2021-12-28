@@ -12,6 +12,7 @@ public interface IMessage
 public enum MessageType : int
 {
     Authorization,
+    AuthSuccess,
     Error,
     Text
 }
