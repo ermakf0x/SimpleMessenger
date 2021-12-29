@@ -7,11 +7,13 @@ public sealed class AuthSuccessMessage : IMessage
 {
     public MessageType Type => MessageType.AuthSuccess;
     public Guid Token { get; private set; }
+    public int ID { get; private set; }
 
     public AuthSuccessMessage() { }
-    public AuthSuccessMessage(Guid token)
+    public AuthSuccessMessage(Guid token, int id)
     {
         Token = token;
+        ID = id;
     }
 
     public void Read(Stream stream)

@@ -14,5 +14,7 @@ public enum MessageType : int
     Authorization,
     AuthSuccess,
     Error,
+    GetUsers,
+    ResponseUsers,
     Text
 }

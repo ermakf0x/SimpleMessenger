@@ -13,6 +13,8 @@ public class MessageSerializer : IMessageSerializer
         { MessageType.AuthSuccess, typeof(AuthSuccessMessage) },
         { MessageType.Text, typeof(TextMessage) },
         { MessageType.Error, typeof(ErrorMessage) },
+        { MessageType.GetUsers, typeof(GetUsersMessage) },
+        { MessageType.ResponseUsers, typeof(ResponseUsersMessage) },
     };
 
     public void Serialize(Stream stream, IMessage message)

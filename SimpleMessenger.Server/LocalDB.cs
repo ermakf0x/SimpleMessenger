@@ -21,6 +21,7 @@ static class LocalDB
         _users.Add(user);
         return user;
     }
+    public static IReadOnlyCollection<User2> GetUsers() => _users;
 
     static  int GetNextID()
     {

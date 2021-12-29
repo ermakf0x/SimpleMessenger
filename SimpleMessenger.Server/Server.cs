@@ -11,13 +11,14 @@ public class Server
     readonly TcpListener _tcpListener = new(IPAddress.Any, 7777);
     readonly List<Task> _newConnection = new();
     readonly IMessageSerializer _serializer = new MessageSerializer();
-    readonly IMessageProcessor<ServerMessage> _messageProcessor;
+    readonly IMessageProcessor<ServerClient> _messageProcessor;
 
     public Server()
     {
-        _messageProcessor = new MessageProcessorBuilder<ServerMessage>()
-            .Bind2<TextMessage>(text => Console.WriteLine($"[SERVER] {text}"))
+        _messageProcessor = new MessageProcessorBuilder<ServerClient>()
             .Bind<AuthorizationMessage, AuthMessageHandler>()
+            .Bind2<TextMessage>(text => Console.WriteLine($"[SERVER] {text}"))
+            .Bind2<GetUsersMessage>(new GetUsersHandler())
             .Build();
     }
 
@@ -41,7 +42,7 @@ public class Server
         t = Task.Factory.StartNew(async () =>
         {
             using var stream = tcpClient.GetStream();
-            var serverMessage = new ServerMessage
+            var client = new ServerClient
             {
                 Stream = stream,
                 MessageSerializer = _serializer
@@ -57,8 +58,8 @@ public class Server
                         continue;
                     }
                     var newMessage = await Helper.ReadMessageAsync(stream, _serializer);
-                    serverMessage.MSG = newMessage;
-                    _messageProcessor.Push(serverMessage);
+                    client.MSG = newMessage;
+                    _messageProcessor.Push(client);
                 }
                 catch (Exception ex)
                 {

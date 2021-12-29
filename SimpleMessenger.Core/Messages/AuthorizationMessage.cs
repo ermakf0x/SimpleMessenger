@@ -1,21 +1,23 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
+using System.Text;
 
 namespace SimpleMessenger.Core.Messages;
 
 public class AuthorizationMessage : IMessage
 {
     public MessageType Type => MessageType.Authorization;
+    public string Name { get; set; }
 
     public AuthorizationMessage() { }
 
     public void Read(Stream stream)
     {
-        //throw new NotImplementedException();
+        var reader = new StreamReader(stream, Encoding.ASCII);
+        Name = reader.ReadToEnd();
     }
 
     public void Write(Stream stream)
     {
-        //throw new NotImplementedException();
+        stream.Write(Encoding.ASCII.GetBytes(Name));
     }
 }

@@ -5,20 +5,20 @@ namespace SimpleMessenger.Server;
 
 static class MessageProcessorBuilderExtension
 {
-    public static MessageProcessorBuilder<ServerMessage> Bind2<T>(
-        this MessageProcessorBuilder<ServerMessage> builder,
-        IMessageHandler<ServerMessage> handler)
+    public static MessageProcessorBuilder<ServerClient> Bind2<T>(
+        this MessageProcessorBuilder<ServerClient> builder,
+        IMessageHandler<ServerClient> handler)
         where T : IMessage
     {
         return builder.Bind<T>(new ServerMessageHandler(handler));
     }
-    public static MessageProcessorBuilder<ServerMessage> Bind2<T>(this MessageProcessorBuilder<ServerMessage> builder, Action<T> action)
+    public static MessageProcessorBuilder<ServerClient> Bind2<T>(this MessageProcessorBuilder<ServerClient> builder, Action<T> action)
         where T : IMessage
     {
         return builder.Bind<T>(new ServerMessageHandler(new DelegateMessageHandler<T>(action)));
     }
 
-    class DelegateMessageHandler<T> : IMessageHandler<ServerMessage> where T : IMessage
+    class DelegateMessageHandler<T> : IMessageHandler<ServerClient> where T : IMessage
     {
         readonly Action<T> action;
 
@@ -27,22 +27,22 @@ static class MessageProcessorBuilderExtension
             this.action = action ?? throw new ArgumentNullException(nameof(action));
         }
 
-        public void Process(ServerMessage message)
+        public void Process(ServerClient message)
         {
             action.Invoke((T)message.MSG);
         }
     }
 
-    class ServerMessageHandler : IMessageHandler<ServerMessage>
+    class ServerMessageHandler : IMessageHandler<ServerClient>
     {
-        readonly IMessageHandler<ServerMessage> handler;
+        readonly IMessageHandler<ServerClient> handler;
 
-        public ServerMessageHandler(IMessageHandler<ServerMessage> handler)
+        public ServerMessageHandler(IMessageHandler<ServerClient> handler)
         {
             this.handler = handler;
         }
 
-        public void Process(ServerMessage message)
+        public void Process(ServerClient message)
         {
             if (message.MSG is MessageBase msg)
             {
