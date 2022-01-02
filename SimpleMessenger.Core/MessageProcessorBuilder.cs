@@ -6,6 +6,8 @@ namespace SimpleMessenger.Core;
 public sealed class MessageProcessorBuilder
 {
     readonly Dictionary<Type, IMessageHandler> _handlers = new();
+    Action<IMessage> _default;
+    Action<IMessage, Exception> _onError;
 
     public MessageProcessorBuilder Bind<T>(IMessageHandler handler)
         where T : IMessage
@@ -30,20 +32,52 @@ public sealed class MessageProcessorBuilder
         return Bind<T>(new DelegateHandler<T>(action));
     }
 
-    public IMessageProcessor Build() => new MessageProcessor(_handlers);
+    public MessageProcessorBuilder Default(Action<IMessage> handler)
+    {
+        _default = handler;
+        return this;
+    }
+    public MessageProcessorBuilder OnError(Action<IMessage, Exception> handler)
+    {
+        _onError = handler;
+        return this;
+    }
+
+    public IMessageProcessor Build() => new MessageProcessor(_handlers, _default, _onError ?? OnError);
+
+    void OnError(IMessage message, Exception ex)
+    {
+        Console.WriteLine($"Error: {ex}\r\nMessage: {message}");
+    }
 
     class MessageProcessor : IMessageProcessor
     {
         readonly Dictionary<Type, IMessageHandler> _handlers;
-        public MessageProcessor(Dictionary<Type, IMessageHandler> handlers) => _handlers = handlers;
+        readonly Action<IMessage> _default;
+        readonly Action<IMessage, Exception> _onError;
+
+        public MessageProcessor(Dictionary<Type, IMessageHandler> handlers, Action<IMessage> @default, Action<IMessage, Exception> onError)
+        {
+            _handlers = handlers;
+            _default = @default;
+            _onError = onError;
+        }
 
         public void Push(IMessage message, object state = null)
         {
             if (message == null) return;
 
-            if (_handlers.TryGetValue(message.GetType(), out var handler))
+            try
             {
-                handler.Process(message);
+                if (_handlers.TryGetValue(message.GetType(), out var handler))
+                {
+                    handler.Process(message);
+                }
+                else _default?.Invoke(message);
+            }
+            catch (Exception ex)
+            {
+                _onError.Invoke(message, ex);
             }
         }
     }

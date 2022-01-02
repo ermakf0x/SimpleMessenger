@@ -13,16 +13,11 @@ abstract class ServerMessageHandlerBase : IMessageHandler
     protected static void ReturnError(ServerClient client, string message) => ReturnError(client, message, ErrorMessageType.Other);
 
 
-    protected void Process2(IMessage message, object state)
+    protected static bool IsAuth(IMessage message, ServerClient client)
     {
-        if (message is MessageBase msg)
-        {
-            if (msg.Token == Guid.Empty)
-            {
-                var client = state as ServerClient;
-                client.Channel.SendAsync(ErrorMsgHelper.NotAuthorized);
-                return;
-            }
-        }
+        if (client.User != null) return true;
+        if (message is MessageBase msg && msg.Token != Guid.Empty) return true;
+
+        return false;
     }
 }
