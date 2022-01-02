@@ -2,12 +2,12 @@
 using SimpleMessenger.Core.Messages;
 
 namespace SimpleMessenger.Server.MessageHandlers;
-class GetUsersHandler : IMessageHandler<ServerClient>
+class GetUsersHandler : ServerMessageHandlerBase
 {
-    public void Process(ServerClient client)
+    protected override void Process(IMessage message, ServerClient client)
     {
-        Helper.WriteMessageAsync(client.Stream, client.MessageSerializer,
-            new ResponseUsersMessage(LocalDB.GetUsers().Where(u => u.Data.Id != client.User.Data.Id).Select(u => u.Data).ToList()));
+        var users = LocalDB.GetUsers().Where(u => u.Data.Id != client.User.Data.Id).Select(u => u.Data).ToList();
+        client.SendAsync(new ResponseUsersMessage(users));
     }
 }
 

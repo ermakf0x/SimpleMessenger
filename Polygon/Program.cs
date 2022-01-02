@@ -23,14 +23,13 @@ class Program
     static async void StartTestClient()
     {
         var client = new SMClient("127.0.0.1", 7777);
-        client.Connect();
         IMessage? msg;
 
         await client.SendAsync(new TextMessage { Text = "test" });
-        await ReciveClientMessageAsync(client);
+        await ReceiveClientMessageAsync(client);
 
         await client.SendAsync(new AuthorizationMessage());
-        msg = await ReciveClientMessageAsync(client);
+        msg = await ReceiveClientMessageAsync(client);
 
         if(msg is AuthSuccessMessage msg2)
         {
@@ -38,12 +37,12 @@ class Program
             await client.SendAsync(new TextMessage { Text = "text", Token = token });
         }
     }
-    static async Task<IMessage?> ReciveClientMessageAsync(SMClient client)
+    static async Task<IMessage?> ReceiveClientMessageAsync(SMClient client)
     {
         IMessage? retMsg;
         do
         {
-            retMsg = await client.ReciveAsync();
+            retMsg = await client.ReceiveAsync();
             if (retMsg != null)
             {
                 Console.WriteLine($"[CLIENT] {retMsg}");

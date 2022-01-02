@@ -11,14 +11,14 @@ public class Server
     readonly TcpListener _tcpListener = new(IPAddress.Any, 7777);
     readonly List<Task> _newConnection = new();
     readonly IMessageSerializer _serializer = new MessageSerializer();
-    readonly IMessageProcessor<ServerClient> _messageProcessor;
+    readonly IMessageProcessor _messageProcessor;
 
     public Server()
     {
-        _messageProcessor = new MessageProcessorBuilder<ServerClient>()
+        _messageProcessor = new MessageProcessorBuilder()
             .Bind<AuthorizationMessage, AuthMessageHandler>()
-            .Bind2<TextMessage>(text => Console.WriteLine($"[SERVER] {text}"))
-            .Bind2<GetUsersMessage>(new GetUsersHandler())
+            .Bind<TextMessage>(text => Console.WriteLine($"[SERVER] {text}"))
+            .Bind<GetUsersMessage>(new GetUsersHandler())
             .Build();
     }
 
@@ -41,25 +41,19 @@ public class Server
 
         t = Task.Factory.StartNew(async () =>
         {
-            using var stream = tcpClient.GetStream();
-            var client = new ServerClient
-            {
-                Stream = stream,
-                MessageSerializer = _serializer
-            };
+            var client = new ServerClient(new NetworkChannel(tcpClient.GetStream(), _serializer));
 
             while (tcpClient.Connected)
             {
                 try
                 {
-                    if(!stream.DataAvailable)
+                    if(!client.Channel.MessageAvailable)
                     {
                         Thread.Sleep(1);
                         continue;
                     }
-                    var newMessage = await Helper.ReadMessageAsync(stream, _serializer);
-                    client.MSG = newMessage;
-                    _messageProcessor.Push(client);
+                    var newMessage = await client.Channel.ReceiveAsync();
+                    _messageProcessor.Push(newMessage, client);
                 }
                 catch (Exception ex)
                 {

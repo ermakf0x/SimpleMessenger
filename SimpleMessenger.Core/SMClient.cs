@@ -5,38 +5,26 @@ namespace SimpleMessenger.Core;
 
 public class SMClient
 {
-    public string Ip { get; }
-    public int Port { get; }
     public bool Connected => _tcpClient != null && _tcpClient.Connected;
 
-    TcpClient _tcpClient;
-    NetworkStream _stream;
-    readonly IMessageSerializer _serializer = new MessageSerializer();
+    readonly TcpClient _tcpClient;
+    readonly NetworkChannel _channel;
 
     public SMClient(string ip, int port)
     {
-        Ip = ip;
-        Port = port;
-    }
-
-    public bool Connect()
-    {
-        _tcpClient = new TcpClient(Ip, Port);
-        _stream = _tcpClient.GetStream();
-        return true;
+        _tcpClient = new TcpClient(ip, port);
+        _channel = new NetworkChannel(_tcpClient.GetStream(), new MessageSerializer());
     }
 
     public Task SendAsync(IMessage message)
     {
         if (!Connected) return null;
-        return Helper.WriteMessageAsync(_stream, _serializer, message);
+        return _channel.SendAsync(message);
     }
-    public ValueTask<IMessage> ReciveAsync()
+    public ValueTask<IMessage> ReceiveAsync()
     {
-        if (Connected && _stream.DataAvailable)
-        {
-            return Helper.ReadMessageAsync(_stream, _serializer);
-        }
+        if (Connected && _channel.MessageAvailable)
+            return _channel.ReceiveAsync();
         return ValueTask.FromResult<IMessage>(null);
     }
 }

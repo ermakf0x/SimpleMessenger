@@ -1,11 +1,17 @@
 ﻿using SimpleMessenger.Core;
-using System.Net.Sockets;
 
 namespace SimpleMessenger.Server;
 
-class ServerClient : Message
+class ServerClient
 {
-    public NetworkStream? Stream { get; init; }
-    public IMessageSerializer? MessageSerializer { get; init; }
+    public NetworkChannel Channel { get; }
+
     public User2? User { get; set; }
+
+    public ServerClient(NetworkChannel channel)
+    {
+        Channel = channel ?? throw new ArgumentNullException(nameof(channel));
+    }
+
+    public Task SendAsync(IMessage message) => Channel.SendAsync(message);
 }

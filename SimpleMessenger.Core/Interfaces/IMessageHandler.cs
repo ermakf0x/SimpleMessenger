@@ -1,6 +1,6 @@
 ﻿namespace SimpleMessenger.Core;
 
-public interface IMessageHandler<TMsg> where TMsg : Message
+public interface IMessageHandler
 {
-    public void Process(TMsg message);
+    public void Process(IMessage message, object state = null);
 }

@@ -3,14 +3,14 @@ using SimpleMessenger.Core.Messages;
 
 namespace SimpleMessenger.Server.MessageHandlers;
 
-class AuthMessageHandler : IMessageHandler<ServerClient>
+class AuthMessageHandler : ServerMessageHandlerBase
 {
-    public void Process(ServerClient client)
+    protected override void Process(IMessage message, ServerClient client)
     {
-        if (client.MSG is AuthorizationMessage authMsg)
+        if (message is AuthorizationMessage authMsg)
         {
             client.User = LocalDB.New(authMsg.Name);
-            Helper.WriteMessageAsync(client.Stream, client.MessageSerializer, new AuthSuccessMessage(client.User.Token, client.User.Data.Id));
+            client.SendAsync(new AuthSuccessMessage(client.User.Token, client.User.Data.Id));
         }
     }
 }
