@@ -16,10 +16,10 @@ public class SMClient
         _channel = new NetworkChannel(_tcpClient.GetStream(), new MessageSerializer());
     }
 
-    public Task SendAsync(IMessage message)
+    public Task SendAsync(Command command)
     {
-        if (!Connected) return null;
-        return _channel.SendAsync(message);
+        if (!Connected) return null; // TODO: Если нет соединения - бросать исключение
+        return command.ExecuteAsync(_channel);
     }
     public ValueTask<IMessage> ReceiveAsync()
     {

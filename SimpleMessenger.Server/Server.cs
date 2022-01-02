@@ -17,8 +17,8 @@ public class Server
     {
         _messageProcessor = new MessageProcessorBuilder()
             .Bind<AuthorizationMessage, AuthMessageHandler>()
-            .Bind<TextMessage>(text => Console.WriteLine($"[SERVER] {text}"))
-            .Bind<GetUsersMessage>(new GetUsersHandler())
+            .Bind<TextMessage, TextMessageHandler>()
+            .Bind<GetUsersMessage>(new GetUsersMessageHandler())
             .Build();
     }
 

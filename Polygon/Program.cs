@@ -25,33 +25,27 @@ class Program
         var client = new SMClient("127.0.0.1", 7777);
         IMessage? msg;
 
-        await client.SendAsync(new TextMessage { Text = "test" });
-        await ReceiveClientMessageAsync(client);
+        var cmd = new CommandWithResponse(new TextMessage { Text = "test" });
+        await client.SendAsync(cmd);
+        PrintMessage(cmd.Response);
 
-        await client.SendAsync(new AuthorizationMessage());
-        msg = await ReceiveClientMessageAsync(client);
+        cmd = new CommandWithResponse(new AuthorizationMessage() { Name = "user3" });
+        await client.SendAsync(cmd);
+        PrintMessage(cmd.Response);
+        msg = cmd.Response;
 
         if(msg is AuthSuccessMessage msg2)
         {
             var token = msg2.Token;
-            await client.SendAsync(new TextMessage { Text = "text", Token = token });
+            await client.SendAsync(new TextMessage { Text = "text", Token = token }.AsCommand());
+        }
+
+        void PrintMessage(IMessage message)
+        {
+            Console.WriteLine($"[CLIENT]: {message}");
         }
     }
-    static async Task<IMessage?> ReceiveClientMessageAsync(SMClient client)
-    {
-        IMessage? retMsg;
-        do
-        {
-            retMsg = await client.ReceiveAsync();
-            if (retMsg != null)
-            {
-                Console.WriteLine($"[CLIENT] {retMsg}");
-                return retMsg;
-            }
-            Thread.Sleep(1);
-        } while (retMsg == null);
-        return null;
-    }
+
 
 
     static void StartTestServer()

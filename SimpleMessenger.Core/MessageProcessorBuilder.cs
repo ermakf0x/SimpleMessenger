@@ -71,7 +71,7 @@ public sealed class MessageProcessorBuilder
             {
                 if (_handlers.TryGetValue(message.GetType(), out var handler))
                 {
-                    handler.Process(message);
+                    handler.Process(message, state);
                 }
                 else _default?.Invoke(message);
             }
