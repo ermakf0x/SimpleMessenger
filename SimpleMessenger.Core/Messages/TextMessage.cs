@@ -4,7 +4,7 @@ using System.Text;
 
 namespace SimpleMessenger.Core.Messages;
 
-public class TextMessage : MessageBase
+public class TextMessage : Message
 {
     public override MessageType Type { get; } = MessageType.Text;
     public string Text { get; set; }

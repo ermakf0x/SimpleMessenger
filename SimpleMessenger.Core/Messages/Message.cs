@@ -3,7 +3,7 @@ using System.IO;
 
 namespace SimpleMessenger.Core.Messages;
 
-public abstract class MessageBase : IMessage
+public abstract class Message : IMessage
 {
     public abstract MessageType Type { get; }
     public Guid Token { get; set; }

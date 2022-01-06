@@ -16,7 +16,7 @@ abstract class ServerMessageHandlerBase : IMessageHandler
     protected static bool IsAuth(IMessage message, ServerClient client)
     {
         if (client.User != null) return true;
-        if (message is MessageBase msg && msg.Token != Guid.Empty) return true;
+        if (message is Message msg && msg.Token != Guid.Empty) return true;
 
         return false;
     }
