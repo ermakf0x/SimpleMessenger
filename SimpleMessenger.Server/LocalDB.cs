@@ -10,13 +10,13 @@ static class LocalDB
     public static void Add(User2 user) => _users.Add(user);
     public static User2? Get(Func<User2, bool> predicate) => _users.Where(predicate).FirstOrDefault();
     public static User2? GetById(int id) => Get(u => u.Data.Id == id);
-    public static User2? GetByToken(Guid token) => Get(u => u.Token == token);
+    public static User2? GetByToken(Token token) => Get(u => u.Token == token);
     public static User2 New(string name)
     {
         var user = new User2
         {
             Data = new UserData { Name = name, Id = GetNextID() },
-            Token = Guid.NewGuid()
+            Token = Token.New()
         };
         _users.Add(user);
         return user;

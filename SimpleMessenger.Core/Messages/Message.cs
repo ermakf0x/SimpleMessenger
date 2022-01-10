@@ -1,22 +1,19 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 
 namespace SimpleMessenger.Core.Messages;
 
 public abstract class Message : IMessage
 {
     public abstract MessageType Type { get; }
-    public Guid Token { get; set; }
+    public Token Token { get; set; }
 
     public virtual void Read(Stream stream)
     {
-        var buf = new byte[16];
-        stream.Read(buf, 0, buf.Length);
-        Token = new Guid(buf);
+        Token = stream.Read<Token>();
     }
 
     public virtual void Write(Stream stream)
     {
-        stream.Write(Token.ToByteArray());
+        stream.Write(Token);
     }
 }

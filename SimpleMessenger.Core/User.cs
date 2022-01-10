@@ -1,11 +1,9 @@
-﻿using System;
-
-namespace SimpleMessenger.Core;
+﻿namespace SimpleMessenger.Core;
 
 public class User
 {
     public UserData Data { get; set; }
-    public Guid Token { get; set; }
+    public Token Token { get; set; }
 
     public User() { }
     public User(string name)

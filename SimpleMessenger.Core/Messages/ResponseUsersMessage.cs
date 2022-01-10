@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace SimpleMessenger.Core.Messages;
 
@@ -10,61 +8,37 @@ public class ResponseUsersMessage : IMessage
     public MessageType Type => MessageType.ResponseUsers;
     public List<UserData> Users { get; set; }
 
-    public ResponseUsersMessage() { }
+    internal ResponseUsersMessage() { }
     public ResponseUsersMessage(List<UserData> users) => Users = users;
 
     public void Read(Stream stream)
     {
-        Span<byte> buffer = stackalloc byte[1024];
-        stream.Read(buffer[..4]); // Количество пользователей в потоке
-        var countUsers = BitConverter.ToInt32(buffer[..4]);
-        var blockSize = 0;
-
-        if (countUsers <= 0) return;
-        Users = new List<UserData>(countUsers);
-        for (int i = 0; i < countUsers; i++)
+        var usersCount = stream.Read<int>();
+        if (usersCount > 0)
         {
-            stream.Read(buffer[..4]); // Размер блока с данными
-            blockSize = BitConverter.ToInt32(buffer);
-            if (blockSize > 5)
+            Users = new List<UserData>(usersCount);
+            for (int i = 0; i < usersCount; i++)
             {
-                var block = buffer[..blockSize];
-                stream.Read(block);
-                Users.Add(ReadUser(block));
+                Users.Add(new()
+                {
+                    Id = stream.Read<int>(),
+                    Name = stream.ReadString()
+                });
             }
         }
     }
 
     public void Write(Stream stream)
     {
-        if(Users != null && Users.Count > 0)
+        if (Users != null && Users.Count > 0)
         {
-            Span<byte> buffer = stackalloc byte[1024];
-            var count = 0;
-
-            stream.Write(BitConverter.GetBytes(Users.Count));
-
+            stream.Write(Users.Count);
             foreach (var user in Users)
             {
-                count = WriteUser(buffer, user);
-                stream.Write(buffer[..count]);
+                stream.Write(user.Id);
+                stream.Write(user.Name);
             }
         }
-    }
-
-    int WriteUser(Span<byte> buffer, UserData user)
-    {
-        BitConverter.TryWriteBytes(buffer[4..], user.Id);
-        var sizeStr = Encoding.UTF8.GetBytes(user.Name, buffer[8..]);
-        BitConverter.TryWriteBytes(buffer, sizeStr + 4);
-        return sizeStr + 8;
-    }
-    UserData ReadUser(Span<byte> buffer)
-    {
-        return new UserData
-        {
-            Id = BitConverter.ToInt32(buffer),
-            Name = Encoding.UTF8.GetString(buffer[4..])
-        };
+        else stream.Write(0);
     }
 }

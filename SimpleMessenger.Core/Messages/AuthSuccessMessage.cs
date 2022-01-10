@@ -6,11 +6,11 @@ namespace SimpleMessenger.Core.Messages;
 public sealed class AuthSuccessMessage : IMessage
 {
     public MessageType Type => MessageType.AuthSuccess;
-    public Guid Token { get; private set; }
+    public Token Token { get; private set; }
     public int ID { get; private set; }
 
-    public AuthSuccessMessage() { }
-    public AuthSuccessMessage(Guid token, int id)
+    internal AuthSuccessMessage() { }
+    public AuthSuccessMessage(Token token, int id)
     {
         Token = token;
         ID = id;
@@ -18,15 +18,14 @@ public sealed class AuthSuccessMessage : IMessage
 
     public void Read(Stream stream)
     {
-        Span<byte> buffer = new byte[32];
-        var count = stream.Read(buffer);
-        buffer = buffer[..count];
-        Token = new Guid(buffer);
+        Token = stream.Read<Token>();
+        ID = stream.Read<int>();
     }
 
     public void Write(Stream stream)
     {
-        stream.Write(Token.ToByteArray());
+        stream.Write(Token);
+        stream.Write(ID);
     }
 
     public override string ToString() => Token.ToString();

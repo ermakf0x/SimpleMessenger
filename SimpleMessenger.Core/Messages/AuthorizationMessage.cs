@@ -1,5 +1,5 @@
-﻿using System.IO;
-using System.Text;
+﻿using System;
+using System.IO;
 
 namespace SimpleMessenger.Core.Messages;
 
@@ -8,16 +8,20 @@ public class AuthorizationMessage : IMessage
     public MessageType Type => MessageType.Authorization;
     public string Name { get; set; }
 
-    public AuthorizationMessage() { }
+    internal AuthorizationMessage() { }
+
+    public AuthorizationMessage(string name)
+    {
+        Name = name ?? throw new ArgumentNullException(nameof(name));
+    }
 
     public void Read(Stream stream)
     {
-        var reader = new StreamReader(stream, Encoding.ASCII);
-        Name = reader.ReadToEnd();
+        Name = stream.ReadString();
     }
 
     public void Write(Stream stream)
     {
-        stream.Write(Encoding.ASCII.GetBytes(Name));
+        stream.Write(Name);
     }
 }

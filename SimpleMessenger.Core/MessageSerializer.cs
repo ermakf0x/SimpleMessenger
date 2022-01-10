@@ -7,34 +7,27 @@ namespace SimpleMessenger.Core;
 
 public class MessageSerializer : IMessageSerializer
 {
-    static readonly Dictionary<MessageType, Type> table = new()
+    static readonly Dictionary<MessageType, Func<IMessage>> table = new()
     {
-        { MessageType.Authorization, typeof(AuthorizationMessage) },
-        { MessageType.AuthSuccess, typeof(AuthSuccessMessage) },
-        { MessageType.Text, typeof(TextMessage) },
-        { MessageType.Error, typeof(ErrorMessage) },
-        { MessageType.GetUsers, typeof(GetUsersMessage) },
-        { MessageType.ResponseUsers, typeof(ResponseUsersMessage) },
+        { MessageType.Authorization, () => new AuthorizationMessage() },
+        { MessageType.AuthSuccess, () => new AuthSuccessMessage() },
+        { MessageType.Text, () => new TextMessage() },
+        { MessageType.Error, () => new ErrorMessage() },
+        { MessageType.GetUsers, () => new GetUsersMessage() },
+        { MessageType.ResponseUsers, () => new ResponseUsersMessage() },
     };
 
     public void Serialize(Stream stream, IMessage message)
     {
-        stream.Write(BitConverter.GetBytes((int)message.Type));
+        stream.Write(message.Type);
         message.Write(stream);
     }
 
     public IMessage Desirialize(Stream stream)
     {
-        var buf = new byte[4];
-        stream.Read(buf);
-        var type = (MessageType)BitConverter.ToInt32(buf);
-        var message = CreateCommandFromType(type);
+        var type = stream.Read<MessageType>();
+        var message = table[type].Invoke();
         message.Read(stream);
         return message;
-    }
-
-    static IMessage CreateCommandFromType(MessageType type)
-    {
-        return (IMessage)Activator.CreateInstance(table[type]);
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Text;
 
 namespace SimpleMessenger.Core.Messages;
 
@@ -10,10 +9,7 @@ public class ErrorMessage : IMessage
     public ErrorMessageType Code { get; set; }
     public string Message { get; set; }
 
-    public ErrorMessage()
-    {
-        Message = string.Empty;
-    }
+    internal ErrorMessage() { }
     public ErrorMessage(string message, ErrorMessageType code)
     {
         Code = code;
@@ -22,17 +18,14 @@ public class ErrorMessage : IMessage
 
     public void Read(Stream stream)
     {
-        var buf = new byte[sizeof(int)];
-        stream.Read(buf, 0, buf.Length);
-        Code = (ErrorMessageType)BitConverter.ToInt32(buf, 0);
-        var reader = new StreamReader(stream, Encoding.UTF8);
-        Message = reader.ReadToEnd();
+        Code = stream.Read<ErrorMessageType>();
+        Message = stream.ReadString();
     }
 
     public void Write(Stream stream)
     {
-        stream.Write(BitConverter.GetBytes((int)Code));
-        stream.Write(Encoding.UTF8.GetBytes(Message));
+        stream.Write(Code);
+        stream.Write(Message);
     }
 
     public override string ToString() => $"Error message: \'{Message}\'";

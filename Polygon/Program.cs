@@ -25,11 +25,11 @@ class Program
         var client = new SMClient("127.0.0.1", 7777);
         IMessage? msg;
 
-        var cmd = new CommandWithResponse(new TextMessage { Text = "test" });
+        var cmd = new CommandWithResponse(new TextMessage(default, "test"));
         await client.SendAsync(cmd);
         PrintMessage(cmd.Response);
 
-        cmd = new CommandWithResponse(new AuthorizationMessage() { Name = "user3" });
+        cmd = new CommandWithResponse(new AuthorizationMessage("user3"));
         await client.SendAsync(cmd);
         PrintMessage(cmd.Response);
         msg = cmd.Response;
@@ -37,7 +37,7 @@ class Program
         if(msg is AuthSuccessMessage msg2)
         {
             var token = msg2.Token;
-            await client.SendAsync(new TextMessage { Text = "text", Token = token }.AsCommand());
+            await client.SendAsync(new TextMessage(token, "text").AsCommand());
         }
 
         void PrintMessage(IMessage message)

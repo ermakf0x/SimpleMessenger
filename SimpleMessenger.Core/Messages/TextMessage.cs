@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Text;
 
 namespace SimpleMessenger.Core.Messages;
 
@@ -9,8 +8,8 @@ public class TextMessage : Message
     public override MessageType Type { get; } = MessageType.Text;
     public string Text { get; set; }
 
-    public TextMessage() { }
-    public TextMessage(Guid token, string text)
+    internal TextMessage() { }
+    public TextMessage(Token token, string text)
     {
         if (string.IsNullOrEmpty(text))
         {
@@ -24,13 +23,12 @@ public class TextMessage : Message
     public override void Write(Stream stream)
     {
         base.Write(stream);
-        stream.Write(Encoding.ASCII.GetBytes(Text));
+        stream.Write(Text);
     }
     public override void Read(Stream stream)
     {
         base.Read(stream);
-        var reader = new StreamReader(stream, Encoding.ASCII);
-        Text = reader.ReadToEnd();
+        Text = stream.ReadString();
     }
 
     public override string ToString() => Text;
