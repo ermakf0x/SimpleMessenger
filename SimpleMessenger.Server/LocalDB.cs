@@ -25,8 +25,8 @@ static class LocalDB
 
     static  int GetNextID()
     {
+        if (_users.IsEmpty) return 0;
         var user = _users.Last();
-        if (user == null) return 0;
         return user.Data.Id++;
     }
 }

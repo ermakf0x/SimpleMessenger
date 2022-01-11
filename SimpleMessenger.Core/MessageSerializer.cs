@@ -15,7 +15,6 @@ public class MessageSerializer : IMessageSerializer
         { MessageType.JsonContent, () => new JsonContent() },
         { MessageType.Error, () => new Error() },
         { MessageType.GetUsers, () => new GetUsersMessage() },
-        { MessageType.ResponseUsers, () => new ResponseUsersMessage() },
     };
 
     public void Serialize(Stream stream, IMessage message)

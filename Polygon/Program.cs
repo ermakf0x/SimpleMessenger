@@ -33,8 +33,8 @@ class Program
         if(res.Success())
         {
             var jContent = res as JsonContent;
-            var token = (Token)jContent.Data;
-            await client.SendAsync(new TextMessage(token, "text"));
+            var token = jContent.GetAs<Token>();
+            res = await client.SendAsync(new TextMessage(token, "text"));
         }
 
         void PrintMessage(IMessage message)

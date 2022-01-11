@@ -1,34 +1,51 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json;
+using System;
 using System.IO;
 
 namespace SimpleMessenger.Core.Messages;
 public class JsonContent : IResponse
 {
+    string _jsonString;
+    object _data;
+
     public MessageType MessageType => MessageType.JsonContent;
-    public object Data { get; set; }
-    public bool HaveData => Data != null;
+    public bool HasData => !string.IsNullOrEmpty(_jsonString) || _data != null;
 
-    public JsonContent(object data = null) => Data = data;
+    public JsonContent(object data = null) => _data = data;
 
+    public T GetAs<T>()
+    {
+        if (TryGetAs<T>(out T data)) return data;
+        throw new Exception();
+    }
     public bool TryGetAs<T>(out T data)
     {
-        if (!HaveData)
+        if (!HasData)
         {
             data = default;
             return false;
         }
 
-        data = (T)Data;
+        if(_data == null)
+        {
+            T temp = JsonSerializer.Deserialize<T>(_jsonString);
+            _data = temp;
+            data = temp;
+            return true;
+        }
+
+        data = (T)_data;
         return true;
     }
 
     public void Read(Stream stream)
     {
-        Data = JsonConvert.DeserializeObject(stream.ReadString());
+        _jsonString = stream.ReadString();
     }
 
     public void Write(Stream stream)
     {
-        stream.Write(JsonConvert.SerializeObject(Data));
+        var json = _data == null ? string.Empty : JsonSerializer.Serialize(_data);
+        stream.Write(json);
     }
 }

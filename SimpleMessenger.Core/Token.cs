@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace SimpleMessenger.Core;
 
+[JsonConverter(typeof(TokenConverter))]
 public struct Token : IEquatable<Token>
 {
     Guid _data;
@@ -17,4 +20,16 @@ public struct Token : IEquatable<Token>
 
     public static bool operator ==(Token left, Token right) => left.Equals(right);
     public static bool operator !=(Token left, Token right) => !(left == right);
+
+    class TokenConverter : JsonConverter<Token>
+    {
+        public override Token Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            return new Token { _data = Guid.Parse(reader.GetString()) };
+        }
+        public override void Write(Utf8JsonWriter writer, Token value, JsonSerializerOptions options)
+        {
+            writer.WriteStringValue(value.ToString());
+        }
+    }
 }

@@ -16,6 +16,5 @@ public enum MessageType : int
     Success,
     JsonContent,
     GetUsers,
-    ResponseUsers,
     Text
 }

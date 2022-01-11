@@ -4,5 +4,5 @@ namespace SimpleMessenger.Server;
 
 static class ErrorMsgHelper
 {
-    public static Error NotAuthorized => new("Пользователь не авторизован.", ErrorType.NotAuthorized);
+    public static Error NotAuthorized => new("Пользователь не авторизован.", Error.Type.NotAuthorized);
 }
