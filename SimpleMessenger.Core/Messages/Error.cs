@@ -3,22 +3,22 @@ using System.IO;
 
 namespace SimpleMessenger.Core.Messages;
 
-public class ErrorMessage : IMessage
+public class Error : IResponse
 {
-    public MessageType Type => MessageType.Error;
-    public ErrorMessageType Code { get; set; }
+    public MessageType MessageType => MessageType.Error;
+    public Type Code { get; set; }
     public string Message { get; set; }
 
-    internal ErrorMessage() { }
-    public ErrorMessage(string message, ErrorMessageType code)
+    internal Error() { }
+    public Error(string message, Type code = Type.Other)
     {
-        Code = code;
         Message = message ?? throw new ArgumentNullException(nameof(message));
+        Code = code;
     }
 
     public void Read(Stream stream)
     {
-        Code = stream.Read<ErrorMessageType>();
+        Code = stream.Read<Type>();
         Message = stream.ReadString();
     }
 
@@ -30,10 +30,9 @@ public class ErrorMessage : IMessage
 
     public override string ToString() => $"Error message: \'{Message}\'";
 
-}
-
-public enum ErrorMessageType : int
-{
-    Other,
-    NotAuthorized
+    public enum Type : int
+    {
+        Other,
+        NotAuthorized
+    }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SimpleMessenger.Core;
@@ -16,10 +17,20 @@ public class SMClient
         _channel = new NetworkChannel(_tcpClient.GetStream(), new MessageSerializer());
     }
 
-    public Task SendAsync(Command command)
+    public async Task<IResponse> SendAsync(IMessage message)
     {
         if (!Connected) return null; // TODO: Если нет соединения - бросать исключение
-        return command.ExecuteAsync(_channel);
+
+        await _channel.SendAsync(message);
+        while (true)
+        {
+            if (!_channel.MessageAvailable)
+            {
+                Thread.Sleep(1);
+                continue;
+            }
+            return await _channel.ReceiveAsync() as IResponse;
+        }
     }
     public ValueTask<IMessage> ReceiveAsync()
     {

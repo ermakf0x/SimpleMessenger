@@ -6,6 +6,11 @@ using System.Net.Sockets;
 
 namespace SimpleMessenger.Server;
 
+static class Program
+{
+    static void Main(string[] args) => new Server().Start();
+}
+
 public class Server
 {
     readonly TcpListener _tcpListener = new(IPAddress.Any, 7777);
@@ -18,7 +23,7 @@ public class Server
         _messageProcessor = new MessageProcessorBuilder()
             .Bind<AuthorizationMessage, AuthMessageHandler>()
             .Bind<TextMessage, TextMessageHandler>()
-            .Bind<GetUsersMessage>(new GetUsersMessageHandler())
+            .Bind<GetUsersMessage, GetUsersMessageHandler>()
             .Build();
     }
 

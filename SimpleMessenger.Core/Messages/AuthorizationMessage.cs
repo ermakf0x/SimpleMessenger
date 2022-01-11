@@ -5,7 +5,7 @@ namespace SimpleMessenger.Core.Messages;
 
 public class AuthorizationMessage : IMessage
 {
-    public MessageType Type => MessageType.Authorization;
+    public MessageType MessageType => MessageType.Authorization;
     public string Name { get; set; }
 
     internal AuthorizationMessage() { }

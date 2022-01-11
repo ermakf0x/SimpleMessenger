@@ -10,16 +10,17 @@ public class MessageSerializer : IMessageSerializer
     static readonly Dictionary<MessageType, Func<IMessage>> table = new()
     {
         { MessageType.Authorization, () => new AuthorizationMessage() },
-        { MessageType.AuthSuccess, () => new AuthSuccessMessage() },
         { MessageType.Text, () => new TextMessage() },
-        { MessageType.Error, () => new ErrorMessage() },
+        { MessageType.Success, () => new Success() },
+        { MessageType.JsonContent, () => new JsonContent() },
+        { MessageType.Error, () => new Error() },
         { MessageType.GetUsers, () => new GetUsersMessage() },
         { MessageType.ResponseUsers, () => new ResponseUsersMessage() },
     };
 
     public void Serialize(Stream stream, IMessage message)
     {
-        stream.Write(message.Type);
+        stream.Write(message.MessageType);
         message.Write(stream);
     }
 

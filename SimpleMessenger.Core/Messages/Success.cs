@@ -2,10 +2,9 @@
 
 namespace SimpleMessenger.Core.Messages;
 
-public class GetUsersMessage : IMessage
+public class Success : IResponse
 {
-    public MessageType MessageType => MessageType.GetUsers;
-
+    public MessageType MessageType => MessageType.Success;
     public void Read(Stream stream) { }
     public void Write(Stream stream) { }
 }

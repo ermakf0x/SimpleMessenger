@@ -4,7 +4,7 @@ namespace SimpleMessenger.Core;
 
 public interface IMessage
 {
-    public MessageType Type { get; }
+    public MessageType MessageType { get; }
     public void Write(Stream stream);
     public void Read(Stream stream);
 }
@@ -12,8 +12,9 @@ public interface IMessage
 public enum MessageType : int
 {
     Authorization,
-    AuthSuccess,
     Error,
+    Success,
+    JsonContent,
     GetUsers,
     ResponseUsers,
     Text

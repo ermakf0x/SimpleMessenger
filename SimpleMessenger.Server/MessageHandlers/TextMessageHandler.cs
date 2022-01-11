@@ -4,13 +4,11 @@ namespace SimpleMessenger.Server.MessageHandlers;
 
 class TextMessageHandler : ServerMessageHandlerBase
 {
-    protected override void Process(IMessage message, ServerClient client)
+    protected override IResponse Process(IMessage message, ServerClient client)
     {
-        if (!IsAuth(message, client))
-        {
-            ReturnError(client, ErrorMsgHelper.NotAuthorized);
-            return;
-        }
+        if (!message.IsAuth(client)) return Error(ErrorMsgHelper.NotAuthorized);
+
         Console.WriteLine($"[SERVER]: {message}");
+        return Success();
     }
 }

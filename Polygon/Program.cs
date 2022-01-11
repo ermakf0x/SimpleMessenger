@@ -23,21 +23,18 @@ class Program
     static async void StartTestClient()
     {
         var client = new SMClient("127.0.0.1", 7777);
-        IMessage? msg;
 
-        var cmd = new CommandWithResponse(new TextMessage(default, "test"));
-        await client.SendAsync(cmd);
-        PrintMessage(cmd.Response);
+        var res = await client.SendAsync(new TextMessage(default, "test"));
+        PrintMessage(res);
 
-        cmd = new CommandWithResponse(new AuthorizationMessage("user3"));
-        await client.SendAsync(cmd);
-        PrintMessage(cmd.Response);
-        msg = cmd.Response;
+        res = await client.SendAsync(new AuthorizationMessage("user3"));
+        PrintMessage(res);
 
-        if(msg is AuthSuccessMessage msg2)
+        if(res.Success())
         {
-            var token = msg2.Token;
-            await client.SendAsync(new TextMessage(token, "text").AsCommand());
+            var jContent = res as JsonContent;
+            var token = (Token)jContent.Data;
+            await client.SendAsync(new TextMessage(token, "text"));
         }
 
         void PrintMessage(IMessage message)

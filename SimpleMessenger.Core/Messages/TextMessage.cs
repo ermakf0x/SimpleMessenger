@@ -5,7 +5,7 @@ namespace SimpleMessenger.Core.Messages;
 
 public class TextMessage : Message
 {
-    public override MessageType Type { get; } = MessageType.Text;
+    public override MessageType MessageType { get; } = MessageType.Text;
     public string Text { get; set; }
 
     internal TextMessage() { }

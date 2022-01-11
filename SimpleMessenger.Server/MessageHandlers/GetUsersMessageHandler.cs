@@ -1,19 +1,14 @@
 ﻿using SimpleMessenger.Core;
-using SimpleMessenger.Core.Messages;
 
 namespace SimpleMessenger.Server.MessageHandlers;
 class GetUsersMessageHandler : ServerMessageHandlerBase
 {
-    protected override void Process(IMessage message, ServerClient client)
+    protected override IResponse Process(IMessage message, ServerClient client)
     {
-        if (!IsAuth(message, client))
-        {
-            ReturnError(client, ErrorMsgHelper.NotAuthorized);
-            return;
-        }
+        if (!message.IsAuth(client)) return Error(ErrorMsgHelper.NotAuthorized);
 
         var users = LocalDB.GetUsers().Where(u => u.Data.Id != client.User.Data.Id).Select(u => u.Data).ToList();
-        client.SendAsync(new ResponseUsersMessage(users));
+        return Content(users);
     }
 }
 

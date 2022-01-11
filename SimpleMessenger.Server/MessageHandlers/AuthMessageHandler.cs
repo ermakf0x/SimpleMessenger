@@ -5,12 +5,10 @@ namespace SimpleMessenger.Server.MessageHandlers;
 
 class AuthMessageHandler : ServerMessageHandlerBase
 {
-    protected override void Process(IMessage message, ServerClient client)
+    protected override IResponse Process(IMessage message, ServerClient client)
     {
-        if (message is AuthorizationMessage authMsg)
-        {
-            client.User = LocalDB.New(authMsg.Name);
-            client.SendAsync(new AuthSuccessMessage(client.User.Token, client.User.Data.Id));
-        }
+        var authMsg = message as AuthorizationMessage;
+        client.User = LocalDB.New(authMsg.Name);
+        return Content(client.User.Token);
     }
 }
