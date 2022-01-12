@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace SimpleMessenger.Core;
 
-[JsonConverter(typeof(TokenConverter))]
+[JsonConverter(typeof(TokenToJsonConverter))]
 public struct Token : IEquatable<Token>
 {
     Guid _data;
@@ -18,10 +18,12 @@ public struct Token : IEquatable<Token>
     public override int GetHashCode() => _data.GetHashCode();
     public override string ToString() => _data.ToString();
 
+    public static Token Parse(string str) => new() { _data = Guid.Parse(str) };
+
     public static bool operator ==(Token left, Token right) => left.Equals(right);
     public static bool operator !=(Token left, Token right) => !(left == right);
 
-    class TokenConverter : JsonConverter<Token>
+    class TokenToJsonConverter : JsonConverter<Token>
     {
         public override Token Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {

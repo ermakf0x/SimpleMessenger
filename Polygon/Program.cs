@@ -35,6 +35,7 @@ class Program
             var jContent = res as JsonContent;
             var token = jContent.GetAs<Token>();
             res = await client.SendAsync(new TextMessage(token, "text"));
+            var str = token.ToString();
         }
 
         void PrintMessage(IMessage message)

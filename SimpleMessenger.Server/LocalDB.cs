@@ -1,37 +1,48 @@
 ﻿using SimpleMessenger.Core;
-using System.Collections.Concurrent;
+using SimpleMessenger.Server.Model;
 
 namespace SimpleMessenger.Server;
 
-static class LocalDB
+static class LocalDb
 {
-    static readonly ConcurrentBag<User2> _users = new();
-
-    public static void Add(User2 user) => _users.Add(user);
-    public static User2? Get(Func<User2, bool> predicate) => _users.Where(predicate).FirstOrDefault();
-    public static User2? GetById(int id) => Get(u => u.Data.Id == id);
-    public static User2? GetByToken(Token token) => Get(u => u.Token == token);
     public static User2 New(string name)
     {
-        var user = new User2
+        using var db = new UsersContext();
+        var newUser = new User2
         {
-            Data = new UserData { Name = name, Id = GetNextID() },
-            Token = Token.New()
+            UserName = name,
+            CurrentToken = Token.New()
         };
-        _users.Add(user);
-        return user;
-    }
-    public static IReadOnlyCollection<User2> GetUsers() => _users;
+        newUser = db.Users.Add(newUser).Entity;
+        db.SaveChanges();
 
-    static  int GetNextID()
+        return newUser;
+    }
+    public static void Add(User2 user)
     {
-        if (_users.IsEmpty) return 0;
-        var user = _users.Last();
-        return user.Data.Id++;
+        using var db = new UsersContext();
+        db.Users.Add(user);
+        db.SaveChanges();
     }
-}
 
-class User2 : User
-{
+    public static User2? Get(Func<User2, bool> predicate)
+    {
+        using var db = new UsersContext();
+        return db.Users.FirstOrDefault(predicate);
+    }
+    public static User2? GetById(int id)
+    {
+        using var db = new UsersContext();
+        return db.Users.SingleOrDefault(u => u.Id == id);
+    }
 
+    public static bool Contains(Func<User2, bool> predicate)
+    {
+        return Get(predicate) != null;
+    }
+    public static bool ContainsByToken(in Token token)
+    {
+        var t = token;
+        return Contains(u => u.CurrentToken == t);
+    }
 }
