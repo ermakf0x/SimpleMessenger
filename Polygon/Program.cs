@@ -27,7 +27,7 @@ class Program
         var res = await client.SendAsync(new TextMessage(default, "test"));
         PrintMessage(res);
 
-        res = await client.SendAsync(new AuthorizationMessage("user3"));
+        res = await client.SendAsync(new AuthorizationMessage("user3", "12345"));
         PrintMessage(res);
 
         if(res.Success())
@@ -35,7 +35,6 @@ class Program
             var jContent = res as JsonContent;
             var token = jContent.GetAs<Token>();
             res = await client.SendAsync(new TextMessage(token, "text"));
-            var str = token.ToString();
         }
 
         void PrintMessage(IMessage message)

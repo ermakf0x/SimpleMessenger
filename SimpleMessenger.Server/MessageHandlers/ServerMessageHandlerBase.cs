@@ -28,7 +28,7 @@ abstract class ServerMessageHandlerBase<TMsg> : IMessageHandler
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected static IResponse Success() => _cachedSuccessResponse;
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected static IResponse Content(object content) => new JsonContent(content);
+    protected static IResponse JContent(object content) => new JsonContent(content);
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected static IResponse Content(JsonContent content) => content;
+    protected static IResponse JContent(JsonContent content) => content;
 }

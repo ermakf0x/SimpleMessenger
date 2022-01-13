@@ -1,7 +1,4 @@
 ﻿using SimpleMessenger.Core.Messages;
-using System;
-using System.Collections.Generic;
-using System.IO;
 
 namespace SimpleMessenger.Core;
 
@@ -9,11 +6,12 @@ public class MessageSerializer : IMessageSerializer
 {
     static readonly Dictionary<MessageType, Func<IMessage>> table = new()
     {
+        { MessageType.Registration, () => new RegistrationMessage() },
         { MessageType.Authorization, () => new AuthorizationMessage() },
-        { MessageType.Text, () => new TextMessage() },
         { MessageType.Success, () => new Success() },
         { MessageType.JsonContent, () => new JsonContent() },
         { MessageType.Error, () => new Error() },
+        { MessageType.Text, () => new TextMessage() },
         { MessageType.GetUsers, () => new GetUsersMessage() },
     };
 

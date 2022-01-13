@@ -4,12 +4,12 @@ using SimpleMessenger.Server.Model;
 
 namespace SimpleMessenger.Server;
 
-class UsersContext : DbContext
+class DataStorage : DbContext
 {
     public string DbPath { get; }
     public DbSet<User2> Users { get; set; }
 
-    public UsersContext()
+    public DataStorage()
     {
         var folder = Environment.SpecialFolder.LocalApplicationData;
         var path = Environment.GetFolderPath(folder);

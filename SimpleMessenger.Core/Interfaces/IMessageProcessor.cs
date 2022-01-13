@@ -2,5 +2,5 @@
 
 public interface IMessageProcessor
 {
-    void Push(IMessage message, object state = null);
+    void Push(IMessage message, object? state = null);
 }

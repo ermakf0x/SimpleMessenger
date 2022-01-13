@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace SimpleMessenger.Core;
 
 public sealed class MessageProcessorBuilder
 {
     readonly Dictionary<Type, IMessageHandler> _handlers = new();
-    Action<IMessage> _default;
-    Action<IMessage, Exception> _onError;
+    Action<IMessage>? _default;
+    Action<IMessage, Exception>? _onError;
 
     public MessageProcessorBuilder Bind<T>(IMessageHandler handler)
         where T : IMessage
@@ -52,18 +53,18 @@ public sealed class MessageProcessorBuilder
 
     class MessageProcessor : IMessageProcessor
     {
-        readonly Dictionary<Type, IMessageHandler> _handlers;
+        readonly ReadOnlyDictionary<Type, IMessageHandler> _handlers;
         readonly Action<IMessage> _default;
         readonly Action<IMessage, Exception> _onError;
 
         public MessageProcessor(Dictionary<Type, IMessageHandler> handlers, Action<IMessage> @default, Action<IMessage, Exception> onError)
         {
-            _handlers = handlers;
+            _handlers = new(handlers);
             _default = @default;
             _onError = onError;
         }
 
-        public void Push(IMessage message, object state = null)
+        public void Push(IMessage message, object? state = null)
         {
             if (message == null) return;
 
@@ -91,7 +92,7 @@ public sealed class MessageProcessorBuilder
             this.action = action ?? throw new ArgumentNullException(nameof(action));
         }
 
-        public void Process(IMessage message, object state = null)
+        public void Process(IMessage message, object? state = null)
         {
             action.Invoke((T)message);
         }

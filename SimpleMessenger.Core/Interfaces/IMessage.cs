@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace SimpleMessenger.Core;
+﻿namespace SimpleMessenger.Core;
 
 public interface IMessage
 {
@@ -11,6 +9,7 @@ public interface IMessage
 
 public enum MessageType : int
 {
+    Registration,
     Authorization,
     Error,
     Success,

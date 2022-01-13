@@ -7,7 +7,14 @@ class AuthorizationMessageHandler : ServerMessageHandlerBase<AuthorizationMessag
 {
     protected override IResponse Process(AuthorizationMessage message, ServerClient client)
     {
-        client.User = LocalDb.New(message.Name);
-        return Content(client.User.CurrentToken);
+        var user = LocalDb.GetByLogin(message.Login);
+        if (user == null) return Error($"Пользаватель с логином '{message.Login}' не найден.");
+        if (user.Password != message.Password) return Error("Неверный пароль.");
+
+        user.CurrentToken = Token.New();
+        client.User = user;
+        LocalDb.Update(user);
+
+        return JContent(client.User.CurrentToken);
     }
 }

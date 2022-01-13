@@ -2,5 +2,5 @@
 
 public interface IMessageHandler
 {
-    public void Process(IMessage message, object state = null);
+    public void Process(IMessage message, object? state = null);
 }
