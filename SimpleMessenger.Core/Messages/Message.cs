@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace SimpleMessenger.Core.Messages;
+﻿namespace SimpleMessenger.Core.Messages;
 
 public abstract class Message : IMessage
 {

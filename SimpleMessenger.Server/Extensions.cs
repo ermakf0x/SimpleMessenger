@@ -19,7 +19,7 @@ static class Extensions
     }
 
     public static User2? GetOneById(this IQueryable<User2> users, int id) => users.FirstOrDefault(u => u.Id == id);
-    public static User2? GetOneByLogin(this IQueryable<User2> users, string login) => users.FirstOrDefault(u => u.Login == login);
+    public static User2? GetOneByLogin(this IQueryable<User2> users, string login) => users.FirstOrDefault(u => u.UserName == login);
     public static User2? GetOneByToken(this IQueryable<User2> users, Token token) => users.FirstOrDefault(u => u.CurrentToken == token);
     public static bool ContainsByToken(this IQueryable<User2> users, Token token) => users.GetOneByToken(token) is not null;
     public static bool ContainsByLogin(this IQueryable<User2> users, string login) => users.GetOneByLogin(login) is not null;

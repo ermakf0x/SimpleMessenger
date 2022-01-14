@@ -1,8 +1,5 @@
-﻿using System;
-using System.Buffers;
-using System.IO;
+﻿using System.Buffers;
 using System.Net.Sockets;
-using System.Threading.Tasks;
 
 namespace SimpleMessenger.Core;
 
@@ -34,7 +31,7 @@ public sealed class NetworkChannel
         ms.Seek(0, SeekOrigin.Begin);
         return ms.CopyToAsync(stream);
     }
-    public async ValueTask<IMessage> ReceiveAsync()
+    public async Task<IMessage> ReceiveAsync()
     {
         await stream.ReadAsync(buffer);
         var sizeBlock = BitConverter.ToInt32(buffer, 0) - size;

@@ -1,24 +1,22 @@
 ﻿using System.Text.Json;
-using System;
-using System.IO;
 
 namespace SimpleMessenger.Core.Messages;
-public class JsonContent : IResponse
+public class JsonMessage : IResponse
 {
-    string _jsonString;
-    object _data;
+    string? _jsonString;
+    object? _data;
 
-    public MessageType MessageType => MessageType.JsonContent;
+    public MessageType MessageType => MessageType.Json;
     public bool HasData => !string.IsNullOrEmpty(_jsonString) || _data != null;
 
-    public JsonContent(object data = null) => _data = data;
+    public JsonMessage(object? data = null) => _data = data;
 
-    public T GetAs<T>()
+    public T? GetAs<T>()
     {
-        if (TryGetAs<T>(out T data)) return data;
+        if (TryGetAs(out T? data)) return data;
         throw new Exception();
     }
-    public bool TryGetAs<T>(out T data)
+    public bool TryGetAs<T>(out T? data)
     {
         if (!HasData)
         {

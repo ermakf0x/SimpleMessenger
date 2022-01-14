@@ -11,14 +11,14 @@ static class LocalDb
 
         if(db.Users.GetOneByLogin(login) is not null)
         {
-            //TODO: выбросить исключение, что данный логин занят
+            throw new UserNameIsTakenException(login);
         }
 
         var newUser = new User2
         {
             CurrentToken = Token.New(),
             Name = name,
-            Login = login,
+            UserName = login,
             Password = password,
             RegTime = DateTime.Now,
         };

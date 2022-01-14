@@ -1,11 +1,6 @@
-﻿using System.IO;
+﻿namespace SimpleMessenger.Core.Messages;
 
-namespace SimpleMessenger.Core.Messages;
-
-public class GetUsersMessage : IMessage
+public class GetUsersMessage : EmptyMessage
 {
-    public MessageType MessageType => MessageType.GetUsers;
-
-    public void Read(Stream stream) { }
-    public void Write(Stream stream) { }
+    public override MessageType MessageType => MessageType.GetUsers;
 }

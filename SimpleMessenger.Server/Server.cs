@@ -21,8 +21,8 @@ public class Server
     public Server()
     {
         _messageProcessor = new MessageProcessorBuilder()
-            .Bind<AuthorizationMessage, AuthorizationMessageHandler>()
             .Bind<RegistrationMessage, RegistrationMessageHandler>()
+            .Bind<AuthorizationMessage, AuthorizationMessageHandler>()
             .Bind<TextMessage, TextMessageHandler>()
             .Build();
     }

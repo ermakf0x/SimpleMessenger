@@ -1,6 +1,4 @@
 ﻿using System.Net.Sockets;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace SimpleMessenger.Core;
 
@@ -32,10 +30,10 @@ public class SMClient
             return await _channel.ReceiveAsync() as IResponse;
         }
     }
-    public ValueTask<IMessage> ReceiveAsync()
+    public Task<IMessage> ReceiveAsync()
     {
         if (Connected && _channel.MessageAvailable)
             return _channel.ReceiveAsync();
-        return ValueTask.FromResult<IMessage>(null);
+        return Task.FromResult<IMessage>(null);
     }
 }

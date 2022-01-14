@@ -10,11 +10,11 @@ class RegistrationMessageHandler : ServerMessageHandlerBase<RegistrationMessage>
         {
             var newUser = LocalDb.New(message.Login, message.Password, message.Name);
             client.User = newUser;
-            return JContent(newUser.ToClientUser());
+            return Json(newUser.ToClientUser());
         }
-        catch (Exception)
+        catch (ServerException ex)
         {
-            return Error("");
+            return Error(ex);
         }
     }
 }

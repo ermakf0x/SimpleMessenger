@@ -8,9 +8,9 @@ public class MessageSerializer : IMessageSerializer
     {
         { MessageType.Registration, () => new RegistrationMessage() },
         { MessageType.Authorization, () => new AuthorizationMessage() },
-        { MessageType.Success, () => new Success() },
-        { MessageType.JsonContent, () => new JsonContent() },
-        { MessageType.Error, () => new Error() },
+        { MessageType.Success, () => new SuccessMessage() },
+        { MessageType.Json, () => new JsonMessage() },
+        { MessageType.Error, () => new ErrorMessage() },
         { MessageType.Text, () => new TextMessage() },
         { MessageType.GetUsers, () => new GetUsersMessage() },
     };

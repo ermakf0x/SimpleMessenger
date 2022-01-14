@@ -1,16 +1,13 @@
-﻿using System;
-using System.IO;
+﻿namespace SimpleMessenger.Core.Messages;
 
-namespace SimpleMessenger.Core.Messages;
-
-public class Error : IResponse
+public class ErrorMessage : IResponse
 {
     public MessageType MessageType => MessageType.Error;
-    public Type Code { get; set; }
-    public string Message { get; set; }
+    public Type Code { get; protected set; }
+    public string Message { get; protected set; }
 
-    internal Error() { }
-    public Error(string message, Type code = Type.Other)
+    internal ErrorMessage() { }
+    public ErrorMessage(string message, Type code = Type.Other)
     {
         Message = message ?? throw new ArgumentNullException(nameof(message));
         Code = code;

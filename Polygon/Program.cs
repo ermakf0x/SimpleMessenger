@@ -32,7 +32,7 @@ class Program
 
         if(res.Success())
         {
-            var jContent = res as JsonContent;
+            var jContent = res as JsonMessage;
             var token = jContent.GetAs<Token>();
             res = await client.SendAsync(new TextMessage(token, "text"));
         }
@@ -42,8 +42,6 @@ class Program
             Console.WriteLine($"[CLIENT]: {message}");
         }
     }
-
-
 
     static void StartTestServer()
     {
