@@ -13,20 +13,17 @@ public sealed class AuthorizationMessage : IMessage
         Password = password ?? throw new ArgumentNullException(nameof(password));
     }
 
-    public void Read(Stream stream)
+    void IMessage.Write(DataWriter writer)
     {
-        Login = stream.ReadString();
-        Password = stream.ReadString();
+        writer.Write(Login);
+        writer.Write(Password);
     }
 
-    public void Write(Stream stream)
+    void IMessage.Read(DataReader reader)
     {
-        stream.Write(Login);
-        stream.Write(Password);
+        Login = reader.ReadString();
+        Password = reader.ReadString();
     }
 
-    public override string ToString()
-    {
-        return $"{Login}:{Password}";
-    }
+    public override string ToString() => $"{Login}:{Password}";
 }

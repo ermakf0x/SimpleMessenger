@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -8,8 +6,6 @@ namespace SimpleMessenger.Core;
 
 internal static class StreamExtensions
 {
-    private static readonly UTF8Encoding Utf8NoBom = new(false, true);
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Write<T>(this Stream stream, T value)
         where T : unmanaged
@@ -48,9 +44,8 @@ internal static class StreamExtensions
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Write(this Stream stream, string value)
+    public static void Write(this Stream stream, string value, Encoding encoding)
     {
-        var encoding = Utf8NoBom;
         var valueSpan = value.AsSpan();
         var len = encoding.GetByteCount(valueSpan);
 
@@ -62,9 +57,8 @@ internal static class StreamExtensions
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Write(this Stream stream, char[] value)
+    public static void Write(this Stream stream, char[] value, Encoding encoding)
     {
-        var encoding = Utf8NoBom;
         var valueSpan = value.AsSpan();
         var encodedLength = encoding.GetByteCount(valueSpan);
 
@@ -98,7 +92,7 @@ internal static class StreamExtensions
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static char[] ReadCharArray(this Stream stream)
+    public static char[] ReadCharArray(this Stream stream, Encoding encoding)
     {
         var byteLength = stream.Read<int>();
         var charLength = stream.Read<int>();
@@ -108,18 +102,18 @@ internal static class StreamExtensions
 
         var results = new char[charLength];
         var charSpan = results.AsSpan();
-        Utf8NoBom.GetChars(span, charSpan);
+        encoding.GetChars(span, charSpan);
 
         return results;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static string ReadString(this Stream stream)
+    public static string ReadString(this Stream stream, Encoding encoding)
     {
         var byteLength = stream.Read<int>();
         Span<byte> bytes = stackalloc byte[byteLength];
         stream.Read(bytes);
-        return Utf8NoBom.GetString(bytes);
+        return encoding.GetString(bytes);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -128,24 +122,16 @@ internal static class StreamExtensions
     {
         if (typeof(T) == typeof(char))
         {
-            Throw(new InvalidCastException("ReadArray<char>() should be replaced with a call to ReadCharArray()."));
+            throw new InvalidCastException("ReadArray<char>() should be replaced with a call to ReadCharArray().");
         }
 
         var length = stream.Read<int>();
-#pragma warning disable U2U1023 // Do not overwrite initialized variables
         var results = new T[length];
-#pragma warning restore U2U1023 // Do not overwrite initialized variables
 
         var tSpan = results.AsSpan();
         var span = MemoryMarshal.AsBytes(tSpan);
         stream.Read(span);
 
         return results;
-    }
-
-    //https://reubenbond.github.io/posts/dotnet-perf-tuning Section: Use static throw helpers
-    private static void Throw(Exception e)
-    {
-        throw e;
     }
 }

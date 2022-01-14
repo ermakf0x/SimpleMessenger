@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace SimpleMessenger.Core;
+﻿namespace SimpleMessenger.Core;
 
 public interface IMessageSerializer
 {

@@ -3,15 +3,25 @@
 public abstract class Message : IMessage
 {
     public abstract MessageType MessageType { get; }
-    public Token Token { get; set; }
+    public Token Token { get; private set; }
 
-    public virtual void Read(Stream stream)
+    protected Message() { }
+    public Message(Token token)
     {
-        Token = stream.Read<Token>();
+        Token = token;
     }
 
-    public virtual void Write(Stream stream)
+    void IMessage.Write(DataWriter writer)
     {
-        stream.Write(Token);
+        writer.Write(Token);
+        Write(writer);
     }
+    void IMessage.Read(DataReader reader)
+    {
+        Token = reader.Read<Token>();
+        Read(reader);
+    }
+
+    protected abstract void Read(DataReader reader);
+    protected abstract void Write(DataWriter writer);
 }

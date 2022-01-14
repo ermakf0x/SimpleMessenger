@@ -3,8 +3,8 @@
 public interface IMessage
 {
     MessageType MessageType { get; }
-    void Write(Stream stream);
-    void Read(Stream stream);
+    void Write(DataWriter writer);
+    void Read(DataReader reader);
 }
 
 public enum MessageType : int
@@ -14,6 +14,6 @@ public enum MessageType : int
     Error,
     Success,
     Json,
-    GetUsers,
+    FindUser,
     Text
 }

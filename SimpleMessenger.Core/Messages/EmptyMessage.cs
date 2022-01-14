@@ -3,9 +3,8 @@
 public abstract class EmptyMessage : IMessage
 {
     public abstract MessageType MessageType { get; }
-
-    void IMessage.Read(Stream stream) { }
-    void IMessage.Write(Stream stream) { }
+    void IMessage.Write(DataWriter writer) { }
+    void IMessage.Read(DataReader reader) { }
 
     public override string ToString()
     {

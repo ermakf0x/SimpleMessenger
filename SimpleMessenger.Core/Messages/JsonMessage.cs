@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 
 namespace SimpleMessenger.Core.Messages;
-public class JsonMessage : IResponse
+public sealed class JsonMessage : IMessage, IResponse
 {
     string? _jsonString;
     object? _data;
@@ -35,15 +35,18 @@ public class JsonMessage : IResponse
         data = (T)_data;
         return true;
     }
-
-    public void Read(Stream stream)
-    {
-        _jsonString = stream.ReadString();
-    }
-
-    public void Write(Stream stream)
+    void IMessage.Write(DataWriter writer)
     {
         var json = _data == null ? string.Empty : JsonSerializer.Serialize(_data);
-        stream.Write(json);
+        writer.Write(json);
+    }
+    void IMessage.Read(DataReader reader)
+    {
+        _jsonString = reader.ReadString();
+    }
+
+    public override string ToString()
+    {
+        return _data?.ToString() ?? _jsonString ?? string.Empty;
     }
 }

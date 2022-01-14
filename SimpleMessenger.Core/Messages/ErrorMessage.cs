@@ -1,10 +1,10 @@
 ﻿namespace SimpleMessenger.Core.Messages;
 
-public class ErrorMessage : IResponse
+public sealed class ErrorMessage : IMessage, IResponse
 {
     public MessageType MessageType => MessageType.Error;
-    public Type Code { get; protected set; }
-    public string Message { get; protected set; }
+    public Type Code { get; private set; }
+    public string Message { get; private set; }
 
     internal ErrorMessage() { }
     public ErrorMessage(string message, Type code = Type.Other)
@@ -13,16 +13,15 @@ public class ErrorMessage : IResponse
         Code = code;
     }
 
-    public void Read(Stream stream)
+    void IMessage.Write(DataWriter writer)
     {
-        Code = stream.Read<Type>();
-        Message = stream.ReadString();
+        writer.Write(Code);
+        writer.Write(Message);
     }
-
-    public void Write(Stream stream)
+    void IMessage.Read(DataReader reader)
     {
-        stream.Write(Code);
-        stream.Write(Message);
+        Code = reader.Read<Type>();
+        Message = reader.ReadString();
     }
 
     public override string ToString() => $"Error message: \'{Message}\'";

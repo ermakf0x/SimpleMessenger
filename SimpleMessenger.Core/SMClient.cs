@@ -1,18 +1,19 @@
 ﻿using System.Net.Sockets;
+using System.Text;
 
 namespace SimpleMessenger.Core;
 
 public class SMClient
 {
-    public bool Connected => _tcpClient != null && _tcpClient.Connected;
-
     readonly TcpClient _tcpClient;
     readonly NetworkChannel _channel;
+
+    public bool Connected => _tcpClient != null && _tcpClient.Connected;
 
     public SMClient(string ip, int port)
     {
         _tcpClient = new TcpClient(ip, port);
-        _channel = new NetworkChannel(_tcpClient.GetStream(), new MessageSerializer());
+        _channel = new NetworkChannel(_tcpClient.GetStream(), new MessageSerializer(Encoding.UTF8));
     }
 
     public async Task<IResponse> SendAsync(IMessage message)
@@ -30,10 +31,9 @@ public class SMClient
             return await _channel.ReceiveAsync() as IResponse;
         }
     }
-    public Task<IMessage> ReceiveAsync()
+    public ValueTask<IMessage?> ReceiveAsync()
     {
-        if (Connected && _channel.MessageAvailable)
-            return _channel.ReceiveAsync();
-        return Task.FromResult<IMessage>(null);
+        if (Connected) return _channel.ReceiveAsync();
+        return ValueTask.FromResult<IMessage?>(null);
     }
 }

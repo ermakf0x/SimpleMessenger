@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-namespace SimpleMessenger.Core.Messages;
+﻿namespace SimpleMessenger.Core.Messages;
 
 public sealed class RegistrationMessage : IMessage
 {
@@ -19,22 +16,18 @@ public sealed class RegistrationMessage : IMessage
         Name = name ?? login;
     }
 
-    public void Read(Stream stream)
+    void IMessage.Write(DataWriter writer)
     {
-        Login = stream.ReadString();
-        Password = stream.ReadString();
-        Name = stream.ReadString();
+        writer.Write(Login);
+        writer.Write(Password);
+        writer.Write(Name);
+    }
+    void IMessage.Read(DataReader reader)
+    {
+        Login = reader.ReadString();
+        Password = reader.ReadString();
+        Name = reader.ReadString();
     }
 
-    public void Write(Stream stream)
-    {
-        stream.Write(Login);
-        stream.Write(Password);
-        stream.Write(Name);
-    }
-
-    public override string ToString()
-    {
-        return $"Login: {Login}; Password: {Password}; Name: {Name}";
-    }
+    public override string ToString() => $"Login: {Login}; Password: {Password}; Name: {Name}";
 }

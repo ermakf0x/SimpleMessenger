@@ -5,18 +5,18 @@ namespace SimpleMessenger.Core;
 
 public sealed class NetworkChannel
 {
-    readonly IMessageSerializer serializer;
-    readonly NetworkStream stream;
+    readonly IMessageSerializer _serializer;
+    readonly NetworkStream _stream;
 
     static readonly int size = sizeof(long);
-    static readonly byte[] buffer = new byte[size];
+    static readonly Memory<byte> buffer = new byte[size];
 
-    public bool MessageAvailable => stream.DataAvailable;
+    public bool MessageAvailable => _stream.DataAvailable;
 
     public NetworkChannel(NetworkStream stream, IMessageSerializer serializer)
     {
-        this.stream = stream ?? throw new ArgumentNullException(nameof(stream));
-        this.serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
+        _stream = stream ?? throw new ArgumentNullException(nameof(stream));
+        _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
     }
 
     public Task SendAsync(IMessage message)
@@ -25,21 +25,23 @@ public sealed class NetworkChannel
 
         using var ms = new MemoryStream(256);
         ms.Seek(size, SeekOrigin.Begin);
-        serializer.Serialize(ms, message);
+        _serializer.Serialize(ms, message);
         ms.Position = 0;
-        ms.Write(BitConverter.GetBytes(ms.Length));
+        ms.Write(ms.Length);
         ms.Seek(0, SeekOrigin.Begin);
-        return ms.CopyToAsync(stream);
+        return ms.CopyToAsync(_stream);
     }
-    public async Task<IMessage> ReceiveAsync()
+    public async ValueTask<IMessage?> ReceiveAsync()
     {
-        await stream.ReadAsync(buffer);
-        var sizeBlock = BitConverter.ToInt32(buffer, 0) - size;
+        if (!_stream.DataAvailable) return null;
+
+        await _stream.ReadAsync(buffer);
+        var sizeBlock = BitConverter.ToInt32(buffer.Span) - size;
 
         using var owner = MemoryPool<byte>.Shared.Rent(sizeBlock);
         var memory = owner.Memory[..sizeBlock];
-        var count = await stream.ReadAsync(memory);
+        var count = await _stream.ReadAsync(memory);
         using var ms = new MemoryStream(memory.ToArray());
-        return serializer.Desirialize(ms);
+        return _serializer.Desirialize(ms);
     }
 }

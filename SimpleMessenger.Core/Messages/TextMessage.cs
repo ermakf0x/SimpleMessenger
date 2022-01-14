@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-namespace SimpleMessenger.Core.Messages;
+﻿namespace SimpleMessenger.Core.Messages;
 
 public class TextMessage : Message
 {
@@ -9,7 +6,7 @@ public class TextMessage : Message
     public string Text { get; set; }
 
     internal TextMessage() { }
-    public TextMessage(Token token, string text)
+    public TextMessage(Token token, string text) : base(token)
     {
         if (string.IsNullOrEmpty(text))
         {
@@ -17,18 +14,15 @@ public class TextMessage : Message
         }
 
         Text = text;
-        Token = token;
     }
 
-    public override void Write(Stream stream)
+    protected override void Write(DataWriter writer)
     {
-        base.Write(stream);
-        stream.Write(Text);
+        writer.Write(Text);
     }
-    public override void Read(Stream stream)
+    protected override void Read(DataReader reader)
     {
-        base.Read(stream);
-        Text = stream.ReadString();
+        Text = reader.ReadString();
     }
 
     public override string ToString() => Text;
