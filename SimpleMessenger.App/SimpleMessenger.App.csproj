@@ -7,4 +7,30 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Include=".mvvm\AsyncCommand.cs" />
+    <Compile Include=".mvvm\AsyncCommandBase.cs" />
+    <Compile Include=".mvvm\CommandBase.cs" />
+    <Compile Include=".mvvm\DelegateCommand.cs" />
+    <Compile Include=".mvvm\IAsyncCommand.cs" />
+    <Compile Include=".mvvm\IViewModelProvider.cs" />
+    <Compile Include=".mvvm\ObservableObject.cs" />
+    <Compile Include=".mvvm\ViewModelBase.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SimpleMessenger.Core\SimpleMessenger.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Model\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Infrastructure\Templates\RegistrationViewModel.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+
 </Project>
