@@ -3,6 +3,7 @@ using SimpleMessenger.Core.Messages;
 using SimpleMessenger.Server.MessageHandlers;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 
 namespace SimpleMessenger.Server;
 
@@ -15,7 +16,7 @@ public class Server
 {
     readonly TcpListener _tcpListener = new(IPAddress.Any, 7777);
     readonly List<Task> _newConnection = new();
-    readonly IMessageSerializer _serializer = new MessageSerializer();
+    readonly IMessageSerializer _serializer = new MessageSerializer(Encoding.UTF8);
     readonly IMessageProcessor _messageProcessor;
 
     public Server()
