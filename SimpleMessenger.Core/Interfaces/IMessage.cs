@@ -9,6 +9,7 @@ public interface IMessage
 
 public enum MessageType : int
 {
+    HelloServer,
     Registration,
     Authorization,
     Error,

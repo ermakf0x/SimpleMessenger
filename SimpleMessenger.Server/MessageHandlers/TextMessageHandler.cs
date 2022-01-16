@@ -7,7 +7,7 @@ class TextMessageHandler : ServerMessageHandlerBase<TextMessage>
 {
     protected override IResponse Process(TextMessage message, ServerClient client)
     {
-        if (!message.IsAuth(client)) return Error(ErrorMsgHelper.NotAuthorized);
+        if (!message.IsAuth(client)) return Error(ErrorMessage.NotAuthorized);
 
         Console.WriteLine($"[SERVER]: {message}");
         return Success();

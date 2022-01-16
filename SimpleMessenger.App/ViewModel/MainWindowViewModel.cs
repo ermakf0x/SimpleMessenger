@@ -1,7 +1,14 @@
-﻿namespace SimpleMessenger.App.ViewModel;
+﻿using SimpleMessenger.App.Infrastructure.Services;
+using SimpleMessenger.App.Model;
+using SimpleMessenger.Core;
+using SimpleMessenger.Core.Messages;
+using System;
+
+namespace SimpleMessenger.App.ViewModel;
 
 sealed class MainWindowViewModel : ObservableObject, IViewModelProvider
 {
+    readonly SMClient _client;
     ViewModelBase _viewModel;
 
     public ViewModelBase ViewModel
@@ -12,12 +19,32 @@ sealed class MainWindowViewModel : ObservableObject, IViewModelProvider
 
     public MainWindowViewModel()
     {
-        ViewModel = new RegistrationViewModel(this);
+        var config = ConfigManager.GetOrLoad<SMClientConfig>();
+        _client = new SMClient(config.IPAddres, config.Port);
+        InitSMClient(ConfigManager.GetOrLoad<UserConfig>());
+    }
+
+    async void InitSMClient(UserConfig config)
+    {
+        try
+        {
+            var response = await _client.ConnectAsync(new HelloServerMessage(config.Token));
+            ViewModel = response switch
+            {
+                SuccessMessage => new HomeViewModel(this, _client),
+                ErrorMessage err => new ErrorPageViewModel(this, err.ToString()),
+                _ => new ErrorPageViewModel(this, "Чтото пошло не так(((")
+            };
+        }
+        catch (Exception ex)
+        {
+            ViewModel = new ErrorPageViewModel(this, ex.ToString());
+        }
     }
 
     bool IViewModelProvider.ChangeViewModel(ViewModelBase vm)
     {
-        _viewModel?.OnChangedViewModel();
+        ViewModel?.OnChangedViewModel();
         ViewModel = vm;
         return true;
     }

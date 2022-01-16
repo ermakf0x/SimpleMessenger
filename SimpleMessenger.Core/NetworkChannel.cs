@@ -31,7 +31,7 @@ public sealed class NetworkChannel
         ms.Seek(0, SeekOrigin.Begin);
         return ms.CopyToAsync(_stream);
     }
-    public async ValueTask<IMessage?> ReceiveAsync()
+    public async Task<IMessage?> ReceiveAsync()
     {
         if (!_stream.DataAvailable) return null;
 

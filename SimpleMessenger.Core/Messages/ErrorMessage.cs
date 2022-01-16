@@ -26,9 +26,13 @@ public sealed class ErrorMessage : IMessage, IResponse
 
     public override string ToString() => $"Error message: \'{Message}\'";
 
+    public static ErrorMessage NotAuthorized => new("Пользователь не авторизован.", Type.NotAuthorized);
+    public static ErrorMessage TokenInvalid => new("Токен недействителен.", Type.TokenInvalid);
+
     public enum Type : int
     {
         Other,
-        NotAuthorized
+        NotAuthorized,
+        TokenInvalid
     }
 }

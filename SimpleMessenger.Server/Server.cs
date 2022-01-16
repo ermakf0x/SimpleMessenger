@@ -22,6 +22,7 @@ public class Server
     public Server()
     {
         _messageProcessor = new MessageProcessorBuilder()
+            .Bind<HelloServerMessage, HelloServerMessageHandler>()
             .Bind<RegistrationMessage, RegistrationMessageHandler>()
             .Bind<AuthorizationMessage, AuthorizationMessageHandler>()
             .Bind<TextMessage, TextMessageHandler>()
@@ -31,7 +32,7 @@ public class Server
     public void Start()
     {
         _tcpListener.Start();
-        Console.WriteLine("Server: Started!");
+        Console.WriteLine("Server: Started!!");
 
         while (true)
         {
@@ -71,7 +72,7 @@ public class Server
                     Console.WriteLine(ex.Message);
                 }
             }
-
+            Console.WriteLine($"{tcpClient.Client.RemoteEndPoint} disconnected");
             _newConnection.Remove(t);
         });
         _newConnection.Add(t);

@@ -9,6 +9,7 @@ public class MessageSerializer : IMessageSerializer
 
     static readonly Dictionary<MessageType, Func<IMessage>> table = new()
     {
+        { MessageType.HelloServer, () => new HelloServerMessage() },
         { MessageType.Registration, () => new RegistrationMessage() },
         { MessageType.Authorization, () => new AuthorizationMessage() },
         { MessageType.Success, () => new SuccessMessage() },

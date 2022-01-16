@@ -50,6 +50,11 @@ static class LocalDb
         using var db = new DataStorage();
         return db.Users.GetOneByLogin(login);
     }
+    public static User2? GetByToken(Token token)
+    {
+        using var db = new DataStorage();
+        return db.Users.GetOneByToken(token);
+    }
 
     public static bool Contains(Func<User2, bool> predicate)
     {
