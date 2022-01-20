@@ -1,6 +1,8 @@
-﻿namespace SimpleMessenger.Core.Messages;
+﻿using SimpleMessenger.Core.Model;
 
-public class HelloServerMessage : Message
+namespace SimpleMessenger.Core.Messages;
+
+public class HelloServerMessage : MessageBase
 {
     public override MessageType MessageType => MessageType.HelloServer;
 

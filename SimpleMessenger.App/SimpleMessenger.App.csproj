@@ -23,6 +23,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Page Update="Infrastructure\Templates\HomeViewModel.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Update="Infrastructure\Templates\RegistrationViewModel.xaml">
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
       <SubType>Designer</SubType>

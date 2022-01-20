@@ -1,4 +1,4 @@
-﻿using SimpleMessenger.App.Infrastructure.Services;
+﻿using SimpleMessenger.App.Infrastructure;
 
 namespace SimpleMessenger.App.Model;
 

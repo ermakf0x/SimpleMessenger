@@ -1,5 +1,6 @@
 ﻿using SimpleMessenger.Core;
 using SimpleMessenger.Core.Messages;
+using SimpleMessenger.Core.Model;
 using SimpleMessenger.Server.Model;
 
 namespace SimpleMessenger.Server;
@@ -10,7 +11,7 @@ static class Extensions
         where TMsg : IMessage
     {
         if (client.User != null) return true;
-        if (message is Message msg && msg.Token != Token.Empty)
+        if (message is MessageBase msg && msg.Token != Token.Empty)
         {
             return LocalDb.ContainsByToken(msg.Token);
         }

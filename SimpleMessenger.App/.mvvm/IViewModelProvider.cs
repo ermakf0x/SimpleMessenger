@@ -4,4 +4,5 @@ interface IViewModelProvider
 {
     ViewModelBase ViewModel { get; }
     bool ChangeViewModel(ViewModelBase vm);
+    bool Back();
 }

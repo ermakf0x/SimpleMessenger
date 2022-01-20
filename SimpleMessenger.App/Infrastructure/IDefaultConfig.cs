@@ -1,4 +1,4 @@
-﻿namespace SimpleMessenger.App.Infrastructure.Services;
+﻿namespace SimpleMessenger.App.Infrastructure;
 
 interface IConfig { }
 interface IDefaultConfig<T> : IConfig

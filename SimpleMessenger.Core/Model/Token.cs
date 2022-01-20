@@ -2,7 +2,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace SimpleMessenger.Core;
+namespace SimpleMessenger.Core.Model;
 
 [JsonConverter(typeof(TokenToJsonConverter))]
 public struct Token : IEquatable<Token>

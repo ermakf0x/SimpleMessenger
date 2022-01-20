@@ -1,19 +1,21 @@
-﻿namespace SimpleMessenger.Core.Messages;
+﻿using SimpleMessenger.Core.Model;
 
-public class FindUserMessage : Message
+namespace SimpleMessenger.Core.Messages;
+
+public class FindUserMessage : MessageBase
 {
     public override MessageType MessageType => MessageType.FindUser;
     public string UserName { get; private set; }
 
     internal FindUserMessage() { }
-    public FindUserMessage(string userName, Token token) : base(token)
+    public FindUserMessage(string username, Token token) : base(token)
     {
-        if (string.IsNullOrEmpty(userName))
+        if (string.IsNullOrEmpty(username))
         {
-            throw new ArgumentException($"\"{nameof(userName)}\" не может быть неопределенным или пустым.", nameof(userName));
+            throw new ArgumentException($"\"{nameof(username)}\" не может быть неопределенным или пустым.", nameof(username));
         }
 
-        UserName = userName;
+        UserName = username;
     }
 
     protected override void Read(DataReader reader)

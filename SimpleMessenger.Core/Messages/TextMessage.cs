@@ -1,6 +1,8 @@
-﻿namespace SimpleMessenger.Core.Messages;
+﻿using SimpleMessenger.Core.Model;
 
-public class TextMessage : Message
+namespace SimpleMessenger.Core.Messages;
+
+public class TextMessage : MessageBase
 {
     public override MessageType MessageType { get; } = MessageType.Text;
     public string Text { get; set; }

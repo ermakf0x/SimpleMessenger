@@ -1,12 +1,14 @@
-﻿namespace SimpleMessenger.Core.Messages;
+﻿using SimpleMessenger.Core.Model;
 
-public abstract class Message : IMessage
+namespace SimpleMessenger.Core.Messages;
+
+public abstract class MessageBase : IMessage
 {
     public abstract MessageType MessageType { get; }
     public Token Token { get; private set; }
 
-    protected Message() { }
-    public Message(Token token)
+    protected MessageBase() { }
+    public MessageBase(Token token)
     {
         Token = token;
     }

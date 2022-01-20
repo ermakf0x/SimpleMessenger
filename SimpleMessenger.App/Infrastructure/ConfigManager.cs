@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 
-namespace SimpleMessenger.App.Infrastructure.Services;
+namespace SimpleMessenger.App.Infrastructure;
 
 static class ConfigManager
 {

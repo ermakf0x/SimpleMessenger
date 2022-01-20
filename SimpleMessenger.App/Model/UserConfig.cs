@@ -1,5 +1,6 @@
-﻿using SimpleMessenger.App.Infrastructure.Services;
+﻿using SimpleMessenger.App.Infrastructure;
 using SimpleMessenger.Core;
+using SimpleMessenger.Core.Model;
 
 namespace SimpleMessenger.App.Model;
 

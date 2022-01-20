@@ -1,4 +1,5 @@
 ﻿using SimpleMessenger.Core;
+using SimpleMessenger.Core.Model;
 using SimpleMessenger.Server.Model;
 
 namespace SimpleMessenger.Server;

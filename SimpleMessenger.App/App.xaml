@@ -5,6 +5,7 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Infrastructure/Templates/HomeViewModel.xaml"/>
                 <ResourceDictionary Source="Infrastructure/Templates/RegistrationViewModel.xaml"/>
                 <ResourceDictionary Source="Infrastructure/Templates/AuthorizationViewModel.xaml"/>
                 <ResourceDictionary Source="Infrastructure/Templates/TestViewModelTemplate.xaml"/>

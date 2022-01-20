@@ -1,4 +1,5 @@
 ﻿using SimpleMessenger.Core;
+using SimpleMessenger.Core.Model;
 
 namespace SimpleMessenger.Server.Model;
 
@@ -12,9 +13,9 @@ class User2
     public string Password { get; set; }
     public DateTime RegTime { get; set; }
 
-    public User ToClientUser()
+    public MainUser ToClientUser()
     {
-        return new User
+        return new MainUser
         {
             Id = Id,
             Name = Name,
