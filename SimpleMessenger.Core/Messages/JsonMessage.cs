@@ -11,7 +11,7 @@ public sealed class JsonMessage : IMessage, IResponse
 
     public JsonMessage(object? data = null) => _data = data;
 
-    public T? GetAs<T>()
+    public T GetAs<T>()
     {
         if (TryGetAs(out T? data)) return data;
         throw new Exception();

@@ -2,10 +2,10 @@
 
 namespace SimpleMessenger.App;
 
-abstract class ViewModelBase : ObservableObject
+abstract class BaseViewModel : ObservableObject
 {
     protected readonly IViewModelProvider _provider;
-    public ViewModelBase(IViewModelProvider provider)
+    public BaseViewModel(IViewModelProvider provider)
         => _provider = provider ?? throw new ArgumentNullException(nameof(provider));
     public virtual void OnChangedViewModel() { }
 }

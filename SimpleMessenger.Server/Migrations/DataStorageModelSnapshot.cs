@@ -2,7 +2,6 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SimpleMessenger.Server;
 
@@ -11,28 +10,18 @@ using SimpleMessenger.Server;
 namespace SimpleMessenger.Server.Migrations
 {
     [DbContext(typeof(DataStorage))]
-    [Migration("20220113170306_InitialCreate")]
-    partial class InitialCreate
+    partial class DataStorageModelSnapshot : ModelSnapshot
     {
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.1");
 
             modelBuilder.Entity("SimpleMessenger.Server.Model.User2", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("UID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
-
-                    b.Property<string>("CurrentToken")
-                        .IsRequired()
-                        .HasMaxLength(36)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Login")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -45,7 +34,16 @@ namespace SimpleMessenger.Server.Migrations
                     b.Property<DateTime>("RegTime")
                         .HasColumnType("TEXT");
 
-                    b.HasKey("Id");
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasMaxLength(36)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("UID");
 
                     b.ToTable("Users");
                 });

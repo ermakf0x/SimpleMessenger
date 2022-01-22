@@ -16,5 +16,7 @@ public enum MessageType : int
     Success,
     Json,
     FindUser,
+    RequestToMessaging,
+    CreateNewChat,
     Text
 }

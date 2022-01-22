@@ -1,16 +1,14 @@
 ﻿using SimpleMessenger.App.Infrastructure;
-using SimpleMessenger.App.Model;
 using SimpleMessenger.Core;
 using SimpleMessenger.Core.Messages;
 using SimpleMessenger.Core.Model;
 using System;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Input;
 
 namespace SimpleMessenger.App.ViewModel;
 
-class AuthorizationViewModel : ViewModelBase
+class AuthorizationViewModel : BaseViewModel
 {
     readonly SMClient _client;
     readonly ClientContext _context;

@@ -24,7 +24,7 @@ public sealed class ErrorMessage : IMessage, IResponse
         Message = reader.ReadString();
     }
 
-    public override string ToString() => $"Error message: \'{Message}\'";
+    public override string ToString() => $"Message: {Message}";
 
     public static ErrorMessage NotAuthorized => new("Пользователь не авторизован", Type.NotAuthorized);
     public static ErrorMessage TokenInvalid => new("Токен недействителен", Type.TokenInvalid);

@@ -12,6 +12,8 @@ public sealed class NetworkChannel
     static readonly Memory<byte> buffer = new byte[size];
 
     public bool MessageAvailable => _stream.DataAvailable;
+    public bool Connected => _stream.Socket.Connected;
+    public Socket Socket => _stream.Socket;
 
     public NetworkChannel(NetworkStream stream, IMessageSerializer serializer)
     {
@@ -44,4 +46,6 @@ public sealed class NetworkChannel
         using var ms = new MemoryStream(memory.ToArray());
         return _serializer.Desirialize(ms);
     }
+
+    public override string ToString() => _stream.Socket.RemoteEndPoint?.ToString();
 }

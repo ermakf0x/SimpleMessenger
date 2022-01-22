@@ -1,80 +1,60 @@
 ﻿using SimpleMessenger.Core;
 using SimpleMessenger.Core.Messages;
 using SimpleMessenger.Server.MessageHandlers;
+using SimpleMessenger.Server.Model;
+using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
 namespace SimpleMessenger.Server;
 
-static class Program
+class Server
 {
-    static void Main(string[] args) => new Server().Start();
-}
-
-public class Server
-{
-    readonly TcpListener _tcpListener = new(IPAddress.Any, 7777);
-    readonly List<Task> _newConnection = new();
+    readonly TcpListener _listener = new(IPAddress.Any, 7777);
+    readonly List<ClientHandler> _handlers = new();
     readonly IMessageSerializer _serializer = new MessageSerializer(Encoding.UTF8);
     readonly IMessageProcessor _messageProcessor;
 
-    public Server()
+    readonly static ConcurrentDictionary<int, User2> _connectedUsers = new();
+
+    readonly static Lazy<Server> _instance = new(() => new Server(), true);
+    public static Server Instance => _instance.Value;
+
+    Server()
     {
         _messageProcessor = new MessageProcessorBuilder()
             .Bind<HelloServerMessage, HelloServerMessageHandler>()
             .Bind<RegistrationMessage, RegistrationMessageHandler>()
             .Bind<AuthorizationMessage, AuthorizationMessageHandler>()
+            .Bind<FindUserMessage, FindUserMessageHandler>()
             .Bind<TextMessage, TextMessageHandler>()
+            .Bind<CreateNewChatMessage, CreateNewChatMessageHandler>()
+            .Default(msg => Console.WriteLine($"[SERVER] WARNING message type '{msg.GetType().Name}' not supported"))
             .Build();
     }
 
-    public void Start()
+    public void Run()
     {
-        _tcpListener.Start();
-        Console.WriteLine("Server: Started!!");
+        _listener.Start(10);
+        Console.WriteLine("[SERVER] Started!!");
 
         while (true)
         {
-            var tcpClient = _tcpListener.AcceptTcpClient();
-            Console.WriteLine($"Server: New connection to server: {tcpClient.Client.RemoteEndPoint}");
-            AddNewConnection(tcpClient);
+            var newClient = _listener.AcceptTcpClient();
+            Console.WriteLine($"[SERVER] {newClient.Client.RemoteEndPoint} Connected to server");
+            _handlers.Add(new ClientHandler(newClient, _serializer, _messageProcessor));
         }
     }
 
-    void AddNewConnection(TcpClient tcpClient)
+    public static User2? GetUser(int uid)
     {
-        Task? t = null;
-
-        t = Task.Factory.StartNew(async () =>
-        {
-            var client = new ServerClient(new NetworkChannel(tcpClient.GetStream(), _serializer));
-
-            while (tcpClient.Connected)
-            {
-                try
-                {
-                    if(!client.Channel.MessageAvailable)
-                    {
-                        Thread.Sleep(1);
-                        continue;
-                    }
-                    var newMessage = await client.Channel.ReceiveAsync();
-                    _messageProcessor.Push(newMessage, client);
-                }
-                catch (Exception ex)
-                {
-                    if (ex.GetType() == typeof(SocketException))
-                    {
-                        Console.WriteLine($"{tcpClient.Client.RemoteEndPoint} disconnected");
-                        break;
-                    }
-                    Console.WriteLine(ex.Message);
-                }
-            }
-            Console.WriteLine($"{tcpClient.Client.RemoteEndPoint} disconnected");
-            _newConnection.Remove(t);
-        });
-        _newConnection.Add(t);
+        if (_connectedUsers.TryGetValue(uid, out var user)) return user;
+        return null;
+    }
+    public static bool TryAddUser(User2 user)
+    {
+        if(user == null) return false;
+        return _connectedUsers.TryAdd(user.UID, user);
     }
 }

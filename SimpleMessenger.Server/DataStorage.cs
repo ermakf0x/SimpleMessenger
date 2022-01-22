@@ -24,7 +24,10 @@ class DataStorage : DbContext
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.Entity<User2>()
-            .Property(u => u.CurrentToken)
+            .HasKey(u => u.UID);
+
+        builder.Entity<User2>()
+            .Property(u => u.Token)
             .HasConversion(t => t.ToString(), s => Token.Parse(s))  // Конвертируем Token в String и обратно
             .HasMaxLength(36);
     }

@@ -1,6 +1,6 @@
 ﻿using SimpleMessenger.Core;
 
-namespace SimpleMessenger.App.Model;
+namespace SimpleMessenger.App.Infrastructure;
 
 sealed class ClientContext
 {

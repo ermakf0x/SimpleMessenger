@@ -1,25 +1,33 @@
-﻿using SimpleMessenger.Core;
-using SimpleMessenger.Core.Model;
+﻿using SimpleMessenger.Core.Model;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SimpleMessenger.Server.Model;
 
-class User2
+class User2 : MainUser
 {
-    public int Id { get; set; }
-    public Token CurrentToken { get; set; }
-    public string Name { get; set; }
-
-    public string UserName { get; set; }
+    public new Token Token { get; set; }
+    public string Username { get; set; }
     public string Password { get; set; }
     public DateTime RegTime { get; set; }
 
-    public MainUser ToClientUser()
+    [NotMapped]
+    public ClientHandler Handler { get; set; }
+
+    public MainUser GetMainUser()
     {
         return new MainUser
         {
-            Id = Id,
+            Token = Token,
+            UID = UID,
             Name = Name,
-            Token = CurrentToken,
+        };
+    }
+    public User GetUser()
+    {
+        return new User
+        {
+            UID = UID,
+            Name = Name,
         };
     }
 }

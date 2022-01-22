@@ -5,11 +5,9 @@ VisualStudioVersion = 17.0.31919.166
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleMessenger.Core", "SimpleMessenger.Core\SimpleMessenger.Core.csproj", "{C310A20B-3ED4-4E41-B38E-FFA629FE2D0E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Polygon", "Polygon\Polygon.csproj", "{13190452-9B7C-4DF0-B628-AC58106A2E65}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleMessenger.Server", "SimpleMessenger.Server\SimpleMessenger.Server.csproj", "{511DA317-1A9A-41AF-A459-C20969F784CE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleMessenger.App", "SimpleMessenger.App\SimpleMessenger.App.csproj", "{45D00730-7661-499A-B07E-FBB2AB73E43A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleMessenger.App", "SimpleMessenger.App\SimpleMessenger.App.csproj", "{45D00730-7661-499A-B07E-FBB2AB73E43A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,10 +19,6 @@ Global
 		{C310A20B-3ED4-4E41-B38E-FFA629FE2D0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C310A20B-3ED4-4E41-B38E-FFA629FE2D0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C310A20B-3ED4-4E41-B38E-FFA629FE2D0E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{13190452-9B7C-4DF0-B628-AC58106A2E65}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{13190452-9B7C-4DF0-B628-AC58106A2E65}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{13190452-9B7C-4DF0-B628-AC58106A2E65}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{13190452-9B7C-4DF0-B628-AC58106A2E65}.Release|Any CPU.Build.0 = Release|Any CPU
 		{511DA317-1A9A-41AF-A459-C20969F784CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{511DA317-1A9A-41AF-A459-C20969F784CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{511DA317-1A9A-41AF-A459-C20969F784CE}.Release|Any CPU.ActiveCfg = Release|Any CPU

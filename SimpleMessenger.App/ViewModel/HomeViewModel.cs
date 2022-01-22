@@ -1,19 +1,29 @@
-﻿using SimpleMessenger.App.Model;
+﻿using SimpleMessenger.App.Infrastructure;
+using SimpleMessenger.App.Model;
 using SimpleMessenger.Core;
+using SimpleMessenger.Core.Messages;
 using SimpleMessenger.Core.Model;
 using System;
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace SimpleMessenger.App.ViewModel;
 
-class HomeViewModel : ViewModelBase
+class HomeViewModel : BaseViewModel
 {
     readonly SMClient _client;
     readonly ClientContext _context;
-    ChatViewModel _selectedChat;
+    readonly ICommand _sendMessageCommand;
+    ContactModel _selectedContact;
+    string _username;
 
-    public ChatViewModel SelectedChat { get => _selectedChat; set => Set(ref _selectedChat, value); }
-    public ObservableCollection<ChatViewModel> Chats { get; }
+    public ContactModel SelectedContact { get => _selectedContact; set => Set(ref _selectedContact, value); }
+    public ObservableCollection<ContactModel> Contacts { get; }
+    public string Username { get => _username; set => Set(ref _username, value); }
+
+    public ICommand FindUserCommand { get; }
+
 
 
     public HomeViewModel(IViewModelProvider provider, ClientContext context) : base(provider)
@@ -21,29 +31,43 @@ class HomeViewModel : ViewModelBase
         _context = context ?? throw new ArgumentNullException(nameof(context));
         _client = _context.Client;
 
-        Chats = new ObservableCollection<ChatViewModel>()
-        {
-            new ChatViewModel(new Chat(Guid.NewGuid())),
-            new ChatViewModel(new Chat(Guid.NewGuid())),
-            new ChatViewModel(new Chat(Guid.NewGuid())),
-        };
+        Contacts = new ObservableCollection<ContactModel>();
+
+        FindUserCommand = new AsyncCommand(FindUserAsync, () => !string.IsNullOrEmpty(Username));
+        _sendMessageCommand = new AsyncCommand(SendMessageAsync, CanSend);
     }
-}
 
-class ChatViewModel : ObservableObject
-{
-    readonly Chat _chat;
-    readonly ObservableCollection<Message> _messages;
-    string _text;
-
-    public string Text { get => _text; set => Set(ref _text, value); }
-    public ReadOnlyObservableCollection<Message> Messages { get; }
-
-    public ChatViewModel(Chat chat)
+    bool CanSend()
     {
-        _chat = chat ?? throw new ArgumentNullException(nameof(chat));
+        return SelectedContact is not null &&
+               !string.IsNullOrEmpty(SelectedContact.Chat.Text);
+    }
 
-        _messages = new(_chat.Messages);
-        Messages = new(_messages);
+    Task SendMessageAsync()
+    {
+        var contact = SelectedContact;
+        return contact.Chat.SendToChatAsync(_context);
+    }
+
+    async Task FindUserAsync()
+    {
+        var response = await _client.SendAsync(new FindUserMessage(Username, _context.Config.Token));
+
+        if(response is JsonMessage json)
+        {
+            var user = json.GetAs<User>();
+            Contacts.Add(new ContactModel
+            {
+                User = user,
+                Chat = new ChatModel(new User
+                {
+                    UID = _context.Config.UID,
+                }, user)
+                {
+                    SendMessageCommand = _sendMessageCommand
+                }
+            });
+            Username = "";
+        }
     }
 }

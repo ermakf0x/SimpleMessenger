@@ -6,9 +6,9 @@ namespace SimpleMessenger.Server.MessageHandlers;
 
 class HelloServerMessageHandler : ServerMessageHandlerBase<HelloServerMessage>
 {
-    protected override IResponse Process(HelloServerMessage message, ServerClient client)
+    protected override IResponse Process(HelloServerMessage message, ClientHandler client)
     {
-        if(client.User != null)
+        if(client.CurrentUser != null)
             return Success();
 
         if (message.Token == Token.Empty)
@@ -17,7 +17,7 @@ class HelloServerMessageHandler : ServerMessageHandlerBase<HelloServerMessage>
         var user = LocalDb.GetByToken(message.Token);
         if(user != null)
         {
-            client.User = user;
+            client.CurrentUser = user;
             return Success();
         }
         return Error(ErrorMessage.TokenInvalid);

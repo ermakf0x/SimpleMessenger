@@ -17,6 +17,7 @@ public class MessageSerializer : IMessageSerializer
         { MessageType.Error, () => new ErrorMessage() },
         { MessageType.Text, () => new TextMessage() },
         { MessageType.FindUser, () => new FindUserMessage() },
+        { MessageType.CreateNewChat, () => new CreateNewChatMessage() },
     };
 
     public MessageSerializer(Encoding encoding)

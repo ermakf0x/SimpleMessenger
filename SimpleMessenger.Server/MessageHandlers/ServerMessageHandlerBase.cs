@@ -12,12 +12,18 @@ abstract class ServerMessageHandlerBase<TMsg> : IMessageHandler
 
     void IMessageHandler.Process(IMessage message, object? state)
     {
-        var client = state as ServerClient ?? throw new ArgumentNullException(nameof(state));
+        var client = state as ClientHandler ?? throw new ArgumentNullException(nameof(state));
         var response = Process((TMsg)message, client);
+
+        #region Debug
+        Console.WriteLine($"[SERVER] {client} Message:  {message.GetType().Name}\r\n{message}");
+        Console.WriteLine($"[SERVER] {client} Response: {response.GetType().Name}\r\n{response}");
+        #endregion
+
         ArgumentNullException.ThrowIfNull(response);
         client.SendAsync(response);
     }
-    protected abstract IResponse Process(TMsg message, ServerClient client);
+    protected abstract IResponse Process(TMsg message, ClientHandler client);
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

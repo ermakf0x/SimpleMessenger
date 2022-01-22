@@ -17,9 +17,9 @@ static class LocalDb
 
         var newUser = new User2
         {
-            CurrentToken = Token.New(),
+            Token = Token.New(),
             Name = name,
-            UserName = login,
+            Username = login,
             Password = password,
             RegTime = DateTime.Now,
         };
@@ -64,6 +64,6 @@ static class LocalDb
     public static bool ContainsByToken(in Token token)
     {
         var t = token;
-        return Contains(u => u.CurrentToken == t);
+        return Contains(u => u.Token == t);
     }
 }

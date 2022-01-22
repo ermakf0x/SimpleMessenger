@@ -1,6 +1,6 @@
 ﻿using SimpleMessenger.App.Infrastructure;
 
-namespace SimpleMessenger.App.Model;
+namespace SimpleMessenger.App.Infrastructure;
 
 class SMClientConfig : IDefaultConfig<SMClientConfig>
 {

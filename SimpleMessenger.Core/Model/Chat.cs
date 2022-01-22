@@ -6,6 +6,7 @@ public sealed class Chat
 
     public Guid Hash { get; }
     public IReadOnlyCollection<Message> Messages => _messages;
+    public Message? LastMessage => Messages.LastOrDefault();
 
     public Chat(Guid hash)
     {
@@ -17,6 +18,4 @@ public sealed class Chat
         ArgumentNullException.ThrowIfNull(message);
         _messages.Add(message);
     }
-
-    public static Chat Create() => new(Guid.NewGuid());
 }

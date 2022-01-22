@@ -1,5 +1,4 @@
 ﻿using SimpleMessenger.App.Infrastructure;
-using SimpleMessenger.App.Model;
 using SimpleMessenger.Core;
 using SimpleMessenger.Core.Messages;
 using System;
@@ -9,11 +8,11 @@ namespace SimpleMessenger.App.ViewModel;
 
 sealed class MainWindowViewModel : ObservableObject, IViewModelProvider
 {
-    readonly Stack<ViewModelBase> _vmStack = new();
+    readonly Stack<BaseViewModel> _vmStack = new();
     readonly SMClient _client;
-    ViewModelBase _viewModel;
+    BaseViewModel _viewModel;
 
-    public ViewModelBase ViewModel
+    public BaseViewModel ViewModel
     {
         get => _viewModel;
         private set => Set(ref _viewModel, value);
@@ -23,13 +22,17 @@ sealed class MainWindowViewModel : ObservableObject, IViewModelProvider
     {
         var config = ConfigManager.GetOrLoad<SMClientConfig>();
         _client = new SMClient(config.IPAddres, config.Port);
-
+        Global.Client = _client;
 
         InitSMClient(ConfigManager.GetOrLoad<UserConfig>());
 
         //var context = new ClientContext { Config = ConfigManager.GetOrLoad<UserConfig>(), Client = _client };
         //var vm = new AuthorizationViewModel(this, context);
         //((IViewModelProvider)this).ChangeViewModel(vm);
+    }
+    ~MainWindowViewModel()
+    {
+        Console.WriteLine("Destroy this class");
     }
 
     async void InitSMClient(UserConfig config)
@@ -57,7 +60,7 @@ sealed class MainWindowViewModel : ObservableObject, IViewModelProvider
         }
     }
 
-    bool IViewModelProvider.ChangeViewModel(ViewModelBase vm)
+    bool IViewModelProvider.ChangeViewModel(BaseViewModel vm)
     {
         ArgumentNullException.ThrowIfNull(vm);
         _vmStack.Push(vm);
@@ -69,7 +72,7 @@ sealed class MainWindowViewModel : ObservableObject, IViewModelProvider
     {
         if (_vmStack.Count == 0) return false;
 
-        ViewModelBase vm;
+        BaseViewModel vm;
         do
         {
             vm = _vmStack.Pop();

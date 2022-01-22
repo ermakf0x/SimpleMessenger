@@ -1,6 +1,6 @@
 ﻿namespace SimpleMessenger.App.ViewModel;
 
-class ErrorPageViewModel : ViewModelBase
+class ErrorPageViewModel : BaseViewModel
 {
     string _error;
     public string ErrorMessage { get => _error; set => Set(ref _error, value); }

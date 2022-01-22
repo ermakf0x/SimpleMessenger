@@ -2,30 +2,30 @@
 
 namespace SimpleMessenger.Core.Messages;
 
-public class TextMessage : MessageBase
+public class TextMessage : ChatableMessage
 {
     public override MessageType MessageType { get; } = MessageType.Text;
-    public string Text { get; set; }
+    public string Message { get; set; }
 
     internal TextMessage() { }
-    public TextMessage(Token token, string text) : base(token)
+    public TextMessage(Token token, Guid chatHash, int target, string message) : base(token, chatHash, target)
     {
-        if (string.IsNullOrEmpty(text))
+        if (string.IsNullOrEmpty(message))
         {
-            throw new ArgumentException($"\"{nameof(text)}\" не может быть неопределенным или пустым.", nameof(text));
+            throw new ArgumentException($"\"{nameof(message)}\" не может быть неопределенным или пустым.", nameof(message));
         }
 
-        Text = text;
+        Message = message;
     }
 
     protected override void Write(DataWriter writer)
     {
-        writer.Write(Text);
+        writer.Write(Message);
     }
     protected override void Read(DataReader reader)
     {
-        Text = reader.ReadString();
+        Message = reader.ReadString();
     }
 
-    public override string ToString() => Text;
+    public override string ToString() => Message;
 }

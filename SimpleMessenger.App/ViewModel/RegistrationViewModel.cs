@@ -9,7 +9,7 @@ using System.Windows.Input;
 
 namespace SimpleMessenger.App.ViewModel;
 
-class RegistrationViewModel : ViewModelBase
+class RegistrationViewModel : BaseViewModel
 {
     readonly SMClient _client;
     readonly ClientContext _context;

@@ -5,11 +5,12 @@ using System.Text;
 
 namespace SimpleMessenger.Core;
 
-public sealed class SMClient
+public sealed class SMClient : IDisposable
 {
     readonly TcpClient _tcpClient;
     readonly IPEndPoint _endPoint;
     NetworkChannel _channel;
+    private bool disposedValue;
 
     public bool Connected => _tcpClient.Connected;
 
@@ -17,10 +18,6 @@ public sealed class SMClient
     {
         _tcpClient = new TcpClient();
         _endPoint = new IPEndPoint(IPAddress.Parse(ip), port);
-    }
-    ~SMClient()
-    {
-        if(Connected) _tcpClient.Dispose();
     }
 
     public async Task ConnectAsync()
@@ -57,5 +54,38 @@ public sealed class SMClient
     {
         if (Connected) return _channel.ReceiveAsync();
         return Task.FromResult<IMessage?>(null);
+    }
+
+    private void Dispose(bool disposing)
+    {
+        if (!disposedValue)
+        {
+            if (disposing)
+            {
+                // TODO: освободить управляемое состояние (управляемые объекты)
+                if(_tcpClient != null)
+                {
+                    _tcpClient.Close();
+                }
+            }
+
+            // TODO: освободить неуправляемые ресурсы (неуправляемые объекты) и переопределить метод завершения
+            // TODO: установить значение NULL для больших полей
+            disposedValue = true;
+        }
+    }
+
+    // // TODO: переопределить метод завершения, только если "Dispose(bool disposing)" содержит код для освобождения неуправляемых ресурсов
+    // ~SMClient()
+    // {
+    //     // Не изменяйте этот код. Разместите код очистки в методе "Dispose(bool disposing)".
+    //     Dispose(disposing: false);
+    // }
+
+    public void Dispose()
+    {
+        // Не изменяйте этот код. Разместите код очистки в методе "Dispose(bool disposing)".
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
     }
 }

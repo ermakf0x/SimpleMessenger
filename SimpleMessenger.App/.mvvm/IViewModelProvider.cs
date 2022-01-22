@@ -2,7 +2,7 @@
 
 interface IViewModelProvider
 {
-    ViewModelBase ViewModel { get; }
-    bool ChangeViewModel(ViewModelBase vm);
+    BaseViewModel ViewModel { get; }
+    bool ChangeViewModel(BaseViewModel vm);
     bool Back();
 }

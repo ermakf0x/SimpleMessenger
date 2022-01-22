@@ -45,6 +45,7 @@ static class ConfigManager
     static void Save<T>(T config, bool updateCache)
         where T : IConfig
     {
+        return;
         ArgumentNullException.ThrowIfNull(config, nameof(config));
 
         if (updateCache)

@@ -15,7 +15,7 @@
     <Compile Include=".mvvm\IAsyncCommand.cs" />
     <Compile Include=".mvvm\IViewModelProvider.cs" />
     <Compile Include=".mvvm\ObservableObject.cs" />
-    <Compile Include=".mvvm\ViewModelBase.cs" />
+    <Compile Include=".mvvm\BaseViewModel.cs" />
   </ItemGroup>
 
   <ItemGroup>
