@@ -13,11 +13,5 @@ namespace SimpleMessenger.App
     /// </summary>
     public partial class App : Application
     {
-        protected override void OnExit(ExitEventArgs e)
-        {
-            Global.Client.Dispose();
-            Console.WriteLine("rrrrrrrrrr");
-            base.OnExit(e);
-        }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using SimpleMessenger.App.Infrastructure;
-using SimpleMessenger.App.Model;
 using SimpleMessenger.Core;
 using SimpleMessenger.Core.Messages;
 using SimpleMessenger.Core.Model;
@@ -11,7 +10,6 @@ namespace SimpleMessenger.App.ViewModel;
 
 class RegistrationViewModel : BaseViewModel
 {
-    readonly SMClient _client;
     readonly ClientContext _context;
     ErrorMessage? _error;
 
@@ -21,13 +19,12 @@ class RegistrationViewModel : BaseViewModel
     public ErrorMessage? Error { get => _error; set => Set(ref _error, value); }
 
     public ICommand BackCommand { get; }
-    public IAsyncCommand CreateCommand { get; }
+    public ICommand CreateCommand { get; }
 
     public RegistrationViewModel(IViewModelProvider provider, ClientContext context) : base(provider)
     {
         ArgumentNullException.ThrowIfNull(nameof(context));
         _context = context;
-        _client = context.Client;
 
         BackCommand = new DelegateCommand(() => _provider.Back());
         CreateCommand = new AsyncCommand(CreateAsync, CanCreated);
@@ -36,7 +33,7 @@ class RegistrationViewModel : BaseViewModel
     async Task CreateAsync()
     {
         Error = null;
-        var responce = await _client.SendAsync(new RegistrationMessage(Username, Password, Username));
+        var responce = await _context.Server.SendAsync(new RegistrationMessage(Username, Password, Username));
 
         if(responce is JsonMessage json)
         {

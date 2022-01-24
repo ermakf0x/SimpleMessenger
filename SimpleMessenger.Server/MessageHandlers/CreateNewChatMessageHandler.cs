@@ -20,9 +20,9 @@ class CreateNewChatMessageHandler : ServerMessageHandlerBase<CreateNewChatMessag
         //TODO: временно для тестов
         user = Server.GetUser(user.UID);
         if (user is not null)
-            user.Handler.SendAsync(new TextMessage(Token.Empty, chat.Hash, user.UID, message.HelloMessage));
+            user.Handler?.SendAsync(new TextMessage(chat.ChatID, client.CurrentUser.UID, message.HelloMessage));
 
 
-        return Json(chat.Hash);
+        return Json(chat.ChatID);
     }
 }

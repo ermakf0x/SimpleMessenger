@@ -15,6 +15,7 @@ public class MessageSerializer : IMessageSerializer
         { MessageType.Success, () => new SuccessMessage() },
         { MessageType.Json, () => new JsonMessage() },
         { MessageType.Error, () => new ErrorMessage() },
+        { MessageType.TextS, () => new TextSMessage() },
         { MessageType.Text, () => new TextMessage() },
         { MessageType.FindUser, () => new FindUserMessage() },
         { MessageType.CreateNewChat, () => new CreateNewChatMessage() },

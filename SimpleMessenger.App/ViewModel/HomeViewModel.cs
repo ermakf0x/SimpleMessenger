@@ -6,67 +6,79 @@ using SimpleMessenger.Core.Model;
 using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 
 namespace SimpleMessenger.App.ViewModel;
 
 class HomeViewModel : BaseViewModel
 {
-    readonly SMClient _client;
     readonly ClientContext _context;
-    readonly ICommand _sendMessageCommand;
     ContactModel _selectedContact;
     string _username;
 
     public ContactModel SelectedContact { get => _selectedContact; set => Set(ref _selectedContact, value); }
     public ObservableCollection<ContactModel> Contacts { get; }
     public string Username { get => _username; set => Set(ref _username, value); }
+    public string CurrentUsername { get; set; }
 
     public ICommand FindUserCommand { get; }
-
-
 
     public HomeViewModel(IViewModelProvider provider, ClientContext context) : base(provider)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
-        _client = _context.Client;
 
         Contacts = new ObservableCollection<ContactModel>();
+        CurrentUsername = context.Config.Name;
 
         FindUserCommand = new AsyncCommand(FindUserAsync, () => !string.IsNullOrEmpty(Username));
-        _sendMessageCommand = new AsyncCommand(SendMessageAsync, CanSend);
+
+        _context.Server.BeginReceiveMessages();
+        _context.Server.OnMessage += Server_OnMessage;
     }
 
-    bool CanSend()
+    void Server_OnMessage(IMessage message)
     {
-        return SelectedContact is not null &&
-               !string.IsNullOrEmpty(SelectedContact.Chat.Text);
-    }
+        if (message is TextMessage msg)
+        {
+            foreach (var contact in Contacts)
+            {
+                if(contact.Chat.ChatID.HasValue && contact.Chat.ChatID == msg.ChatID)
+                {
+                    contact.Chat.MessageCollection.Add(new Message(contact.User, msg.Content));
+                    return;
+                }
+            }
+            foreach (var contact in Contacts)
+            {
+                if(contact.User.UID == msg.Sender)
+                {
+                    contact.Chat.BindToChat(msg.ChatID);
+                    contact.Chat.MessageCollection.Add(new Message(contact.User, msg.Content));
+                    return;
+                }
+            }
+            var user = new User() { UID = msg.Sender };
+            var newChat = new ChatModel(new ChatParticipants(_context.Config, user), _context);
+            newChat.BindToChat(msg.ChatID);
+            newChat.MessageCollection.Add(new Message(user, msg.Content));
+            var newContact = new ContactModel(user, newChat);
+            Contacts.Add(newContact);
 
-    Task SendMessageAsync()
-    {
-        var contact = SelectedContact;
-        return contact.Chat.SendToChatAsync(_context);
+            MessageBox.Show("Нет подходящего чата");
+        }
+        else MessageBox.Show(message.ToString());
     }
 
     async Task FindUserAsync()
     {
-        var response = await _client.SendAsync(new FindUserMessage(Username, _context.Config.Token));
+        var response = await _context.Server.SendAsync(new FindUserMessage(Username, _context.Config.Token));
 
         if(response is JsonMessage json)
         {
             var user = json.GetAs<User>();
-            Contacts.Add(new ContactModel
-            {
-                User = user,
-                Chat = new ChatModel(new User
-                {
-                    UID = _context.Config.UID,
-                }, user)
-                {
-                    SendMessageCommand = _sendMessageCommand
-                }
-            });
+            var chat = new ChatModel(new ChatParticipants(_context.Config, user), _context);
+            Contacts.Add(new ContactModel(user, chat));
             Username = "";
         }
     }

@@ -1,5 +1,4 @@
 ﻿using SimpleMessenger.App.Infrastructure;
-using SimpleMessenger.Core;
 using SimpleMessenger.Core.Messages;
 using System;
 using System.Collections.Generic;
@@ -9,7 +8,7 @@ namespace SimpleMessenger.App.ViewModel;
 sealed class MainWindowViewModel : ObservableObject, IViewModelProvider
 {
     readonly Stack<BaseViewModel> _vmStack = new();
-    readonly SMClient _client;
+    readonly ClientContext _context;
     BaseViewModel _viewModel;
 
     public BaseViewModel ViewModel
@@ -20,36 +19,26 @@ sealed class MainWindowViewModel : ObservableObject, IViewModelProvider
 
     public MainWindowViewModel()
     {
-        var config = ConfigManager.GetOrLoad<SMClientConfig>();
-        _client = new SMClient(config.IPAddres, config.Port);
-        Global.Client = _client;
-
-        InitSMClient(ConfigManager.GetOrLoad<UserConfig>());
-
-        //var context = new ClientContext { Config = ConfigManager.GetOrLoad<UserConfig>(), Client = _client };
-        //var vm = new AuthorizationViewModel(this, context);
-        //((IViewModelProvider)this).ChangeViewModel(vm);
-    }
-    ~MainWindowViewModel()
-    {
-        Console.WriteLine("Destroy this class");
+        var config = ConfigManager.Load<LocalServerConfig>();
+        _context = new ClientContext
+        {
+            Server = new LocalServer(config),
+            Config = ConfigManager.Load<UserConfig>(),
+        };
+        InitSMClient();
     }
 
-    async void InitSMClient(UserConfig config)
+    async void InitSMClient()
     {
         try
         {
-            var response = await _client.ConnectAsync(new HelloServerMessage(config.Token));
-            var context = new ClientContext
-            {
-                Config = config,
-                Client = _client
-            };
+            await _context.Server.ConnectToServerAsync();
+            var response = await _context.Server.SendAsync(new HelloServerMessage(_context.Config.Token));
 
             ViewModel = response switch
             {
-                SuccessMessage => new HomeViewModel(this, context),
-                ErrorMessage err when err.Code == ErrorMessage.Type.TokenInvalid => new AuthorizationViewModel(this, context),
+                SuccessMessage => new HomeViewModel(this, _context),
+                ErrorMessage err when err.Code == ErrorMessage.Type.TokenInvalid => new AuthorizationViewModel(this, _context),
                 ErrorMessage err => new ErrorPageViewModel(this, err.ToString()),
                 _ => new ErrorPageViewModel(this, "Что-то пошло не так(((")
             };

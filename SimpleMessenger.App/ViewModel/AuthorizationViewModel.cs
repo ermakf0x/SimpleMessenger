@@ -10,7 +10,6 @@ namespace SimpleMessenger.App.ViewModel;
 
 class AuthorizationViewModel : BaseViewModel
 {
-    readonly SMClient _client;
     readonly ClientContext _context;
     ErrorMessage? _error;
 
@@ -25,7 +24,6 @@ class AuthorizationViewModel : BaseViewModel
     {
         ArgumentNullException.ThrowIfNull(nameof(context));
         _context = context;
-        _client = context.Client;
 
         CreateNewCommand = new DelegateCommand(CreateNew);
         AuthCommand = new AsyncCommand(AuthAsync, HasValidData);
@@ -39,10 +37,11 @@ class AuthorizationViewModel : BaseViewModel
     async Task AuthAsync()
     {
         Error = null;
-        var response = await _client.SendAsync(new AuthorizationMessage(Username, Password));
+        var response = await _context.Server.SendAsync(new AuthorizationMessage(Username, Password));
         if(response is JsonMessage json)
         {
-            _context.Config.Token = json.GetAs<Token>();
+            var mainUser = json.GetAs<MainUser>();
+            _context.Config = new UserConfig(mainUser);
             ConfigManager.Save(_context.Config);
             _provider.ChangeViewModel(new HomeViewModel(_provider, _context));
             return;

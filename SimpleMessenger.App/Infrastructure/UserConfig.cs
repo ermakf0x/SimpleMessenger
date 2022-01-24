@@ -2,17 +2,24 @@
 
 namespace SimpleMessenger.App.Infrastructure;
 
-class UserConfig : IDefaultConfig<UserConfig>
+class UserConfig : MainUser, IConfig<UserConfig>
 {
-    public Token Token { get; set; }
-    public int UID { get; set; }
+    public UserConfig() { }
+    public UserConfig(MainUser user)
+    {
+        UID = user.UID;
+        Token = user.Token;
+        Name = user.Name;
+    }
 
-    UserConfig IDefaultConfig<UserConfig>.GetDefault()
+
+    UserConfig IConfig<UserConfig>.GetDefault()
     {
         return new UserConfig
         {
-            Token = Token.Empty,
-            UID = -1
+            UID = 0,
+            Name = "Default",
+            Token = Token.Empty
         };
     }
 }

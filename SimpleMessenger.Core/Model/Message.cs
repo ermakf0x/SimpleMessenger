@@ -2,10 +2,16 @@
 
 public class Message
 {
-    public int Id { get; init; }
+    public User Owner { get; init; }
     public string Content { get; set; }
 
-    public override bool Equals(object? obj) => Id.Equals(obj);
-    public override int GetHashCode() => Id.GetHashCode();
+    public Message(User owner, string content)
+    {
+        Owner = owner ?? throw new ArgumentNullException(nameof(owner));
+        Content = content ?? throw new ArgumentNullException(nameof(content));
+    }
+
+    public override bool Equals(object? obj) => Owner.Equals(obj);
+    public override int GetHashCode() => Owner.GetHashCode();
     public override string ToString() => Content;
 }

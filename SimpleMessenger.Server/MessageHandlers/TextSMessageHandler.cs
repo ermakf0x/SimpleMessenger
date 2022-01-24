@@ -1,12 +1,11 @@
 ﻿using SimpleMessenger.Core;
 using SimpleMessenger.Core.Messages;
-using SimpleMessenger.Core.Model;
 
 namespace SimpleMessenger.Server.MessageHandlers;
 
-class TextMessageHandler : ServerMessageHandlerBase<TextMessage>
+class TextSMessageHandler : ServerMessageHandlerBase<TextSMessage>
 {
-    protected override IResponse Process(TextMessage message, ClientHandler client)
+    protected override IResponse Process(TextSMessage message, ClientHandler client)
     {
         if (!message.IsAuth(client)) return Error(ErrorMessage.NotAuthorized);
 
@@ -16,7 +15,7 @@ class TextMessageHandler : ServerMessageHandlerBase<TextMessage>
         // TODO: временно для тестов
         user = Server.GetUser(user.UID);
         if (user is not null)
-            user.Handler.SendAsync(new TextMessage(Token.Empty, message.ChatHash, user.UID, message.Message));
+            user.Handler.SendAsync(new TextMessage(message.ChatHash, client.CurrentUser.UID, message.Message));
 
         return Success();
     }

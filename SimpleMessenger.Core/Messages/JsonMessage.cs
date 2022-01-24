@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 
 namespace SimpleMessenger.Core.Messages;
+
 public sealed class JsonMessage : IMessage, IResponse
 {
     string? _jsonString;

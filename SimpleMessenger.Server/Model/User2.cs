@@ -11,7 +11,7 @@ class User2 : MainUser
     public DateTime RegTime { get; set; }
 
     [NotMapped]
-    public ClientHandler Handler { get; set; }
+    public ClientHandler? Handler { get; set; }
 
     public MainUser GetMainUser()
     {

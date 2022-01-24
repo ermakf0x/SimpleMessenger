@@ -1,9 +1,7 @@
-﻿using SimpleMessenger.Core;
-
-namespace SimpleMessenger.App.Infrastructure;
+﻿namespace SimpleMessenger.App.Infrastructure;
 
 sealed class ClientContext
 {
-    public UserConfig Config { get; init; }
-    public SMClient Client { get; init; }
+    public UserConfig Config { get; set; }
+    public LocalServer Server { get; init; }
 }

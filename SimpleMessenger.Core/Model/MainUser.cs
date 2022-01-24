@@ -2,5 +2,5 @@
 
 public class MainUser : User
 {
-    public Token Token { get; init; }
+    public Token Token { get; set; }
 }

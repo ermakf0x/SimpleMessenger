@@ -37,12 +37,12 @@ public sealed class NetworkChannel
     {
         if (!_stream.DataAvailable) return null;
 
-        await _stream.ReadAsync(buffer);
+        await _stream.ReadAsync(buffer).ConfigureAwait(false);
         var sizeBlock = BitConverter.ToInt32(buffer.Span) - size;
 
         using var owner = MemoryPool<byte>.Shared.Rent(sizeBlock);
         var memory = owner.Memory[..sizeBlock];
-        var count = await _stream.ReadAsync(memory);
+        var count = await _stream.ReadAsync(memory).ConfigureAwait(false);
         using var ms = new MemoryStream(memory.ToArray());
         return _serializer.Desirialize(ms);
     }

@@ -5,10 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:SimpleMessenger.App.ViewModel"
         mc:Ignorable="d"
-        Title="Simple Messenger" Height="450" Width="800"
+        Title="Simple Messenger"
+        Height="450" Width="800"
         WindowStartupLocation="CenterScreen">
     <Window.DataContext>
         <vm:MainWindowViewModel/>
     </Window.DataContext>
-    <ContentPresenter Content="{Binding ViewModel}"/>
+
+    <ContentPresenter x:Name="contentPresenter" Content="{Binding ViewModel}"/>
 </Window>

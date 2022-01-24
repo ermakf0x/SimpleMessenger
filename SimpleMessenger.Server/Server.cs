@@ -28,7 +28,7 @@ class Server
             .Bind<RegistrationMessage, RegistrationMessageHandler>()
             .Bind<AuthorizationMessage, AuthorizationMessageHandler>()
             .Bind<FindUserMessage, FindUserMessageHandler>()
-            .Bind<TextMessage, TextMessageHandler>()
+            .Bind<TextSMessage, TextSMessageHandler>()
             .Bind<CreateNewChatMessage, CreateNewChatMessageHandler>()
             .Default(msg => Console.WriteLine($"[SERVER] WARNING message type '{msg.GetType().Name}' not supported"))
             .Build();

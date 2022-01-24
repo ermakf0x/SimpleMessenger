@@ -4,13 +4,13 @@ public sealed class Chat
 {
     readonly List<Message> _messages = new();
 
-    public Guid Hash { get; }
+    public Guid ChatID { get; }
     public IReadOnlyCollection<Message> Messages => _messages;
     public Message? LastMessage => Messages.LastOrDefault();
 
-    public Chat(Guid hash)
+    public Chat(Guid chatID)
     {
-        Hash = hash;
+        ChatID = chatID;
     }
 
     public void AddMessage(Message message)

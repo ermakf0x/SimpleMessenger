@@ -16,6 +16,6 @@ class AuthorizationMessageHandler : ServerMessageHandlerBase<AuthorizationMessag
         client.CurrentUser = user;
         LocalDb.Update(user);
 
-        return Json(client.CurrentUser.Token);
+        return Json(client.CurrentUser.GetMainUser());
     }
 }
