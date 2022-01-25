@@ -35,7 +35,7 @@
                     <ListView Grid.Row="1" ItemsSource="{Binding Contacts}" SelectedItem="{Binding SelectedContact}">
                         <ListView.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding User.Name}"/>
+                                <TextBlock Text="{Binding Name}"/>
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
@@ -61,7 +61,7 @@
                 <RowDefinition Height="auto"/>
             </Grid.RowDefinitions>
 
-            <Label Content="{Binding User.Name}"/>
+            <Label Content="{Binding Name}"/>
 
             <ListView Grid.Row="1" ItemsSource="{Binding Chat.MessageCollection}">
                 <ListView.ItemTemplate>

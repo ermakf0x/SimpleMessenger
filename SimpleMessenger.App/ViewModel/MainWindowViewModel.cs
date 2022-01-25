@@ -1,7 +1,10 @@
 ﻿using SimpleMessenger.App.Infrastructure;
 using SimpleMessenger.Core.Messages;
+using SimpleMessenger.Core.Model;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace SimpleMessenger.App.ViewModel;
 
@@ -25,6 +28,7 @@ sealed class MainWindowViewModel : ObservableObject, IViewModelProvider
             Server = new LocalServer(config),
             Config = ConfigManager.Load<UserConfig>(),
         };
+        
         InitSMClient();
     }
 
@@ -33,6 +37,10 @@ sealed class MainWindowViewModel : ObservableObject, IViewModelProvider
         try
         {
             await _context.Server.ConnectToServerAsync();
+            ViewModel = new TestViewModel(this, _context);
+            return;
+
+
             var response = await _context.Server.SendAsync(new HelloServerMessage(_context.Config.Token));
 
             ViewModel = response switch
@@ -71,5 +79,41 @@ sealed class MainWindowViewModel : ObservableObject, IViewModelProvider
         _vmStack.Push(vm);
         ViewModel = vm;
         return true;
+    }
+}
+
+class TestViewModel : BaseViewModel
+{
+    private readonly ClientContext context;
+    public ICommand TestCommand { get; set; }
+    public ICommand Test2Command { get; set; }
+    public TestViewModel(IViewModelProvider provider, ClientContext context) : base(provider)
+    {
+        this.context = context;
+
+        TestCommand = new AsyncCommand(TestAsync);
+        Test2Command = new AsyncCommand(Test2Async);
+    }
+
+    private Task TestAsync() => AuthAsync("test", "qwerty1234");
+    private Task Test2Async() => AuthAsync("test2", "qwerty1324");
+
+    async Task AuthAsync(string username, string password)
+    {
+        var response = await context.Server.SendAsync(new AuthorizationMessage(username, password));
+
+        if (response is JsonMessage json)
+        {
+            var mainUser = json.GetAs<MainUser>();
+            context.Config = new UserConfig(mainUser);
+            ConfigManager.Save(context.Config);
+            _provider.ChangeViewModel(new HomeViewModel(_provider, context));
+            return;
+        }
+
+        if (response is ErrorMessage err)
+        {
+            _provider.ChangeViewModel(new ErrorPageViewModel(_provider, err.Message));
+        }
     }
 }

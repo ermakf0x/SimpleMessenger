@@ -8,7 +8,7 @@ class ContactModel : ObservableObject
     public int UID => User.UID;
     public string Name
     {
-        get => User.Name;
+        get => User.Name ?? "user";
         set
         {
             if (value != null && value != User.Name)

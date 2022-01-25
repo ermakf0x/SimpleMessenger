@@ -11,6 +11,8 @@ class ClientHandler
     readonly Task _workTask;
     User2? _currentUser;
 
+    public event Action<ClientHandler> Disconnected;
+
     public User2? CurrentUser
     {
         get => _currentUser;
@@ -55,6 +57,7 @@ class ClientHandler
                 _messageProcessor.Push(message, this);
         }
         Console.WriteLine($"[SERVER] {channel} Disconnected from server");
+        Disconnected?.Invoke(this);
     }
 
     public Task SendAsync(IMessage message) => _channel.SendAsync(message);

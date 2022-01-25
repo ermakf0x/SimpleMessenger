@@ -13,6 +13,7 @@ class Server
 {
     readonly TcpListener _listener = new(IPAddress.Any, 7777);
     readonly List<ClientHandler> _handlers = new();
+    readonly ConcurrentQueue<ClientHandler> _disconnectedQueue = new();
     readonly IMessageSerializer _serializer = new MessageSerializer(Encoding.UTF8);
     readonly IMessageProcessor _messageProcessor;
 
@@ -41,9 +42,23 @@ class Server
 
         while (true)
         {
+            if (!_listener.Pending())
+            {
+                if(_disconnectedQueue.TryDequeue(out var h))
+                {
+                    _handlers.Remove(h);
+                    h.Disconnected -= Handler_Disconnected;
+                }
+
+                Thread.Sleep(1);
+                continue;
+            }
+
             var newClient = _listener.AcceptTcpClient();
             Console.WriteLine($"[SERVER] {newClient.Client.RemoteEndPoint} Connected to server");
-            _handlers.Add(new ClientHandler(newClient, _serializer, _messageProcessor));
+            var handler = new ClientHandler(newClient, _serializer, _messageProcessor);
+            handler.Disconnected += Handler_Disconnected;
+            _handlers.Add(handler);
         }
     }
 
@@ -56,5 +71,10 @@ class Server
     {
         if(user == null) return false;
         return _connectedUsers.TryAdd(user.UID, user);
+    }
+
+    void Handler_Disconnected(ClientHandler handler)
+    {
+        _disconnectedQueue.Enqueue(handler);
     }
 }

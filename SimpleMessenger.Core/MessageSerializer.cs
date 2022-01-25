@@ -35,8 +35,15 @@ public class MessageSerializer : IMessageSerializer
     public IMessage Desirialize(Stream stream)
     {
         var type = stream.Read<MessageType>();
-        var message = table[type].Invoke();
-        message.Read(new DataReader(stream, _encoding));
-        return message;
+        try
+        {
+            var message = table[type].Invoke();
+            message.Read(new DataReader(stream, _encoding));
+            return message;
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
     }
 }

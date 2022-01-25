@@ -5,6 +5,7 @@ using SimpleMessenger.Core.Messages;
 using SimpleMessenger.Core.Model;
 using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -34,38 +35,40 @@ class HomeViewModel : BaseViewModel
         FindUserCommand = new AsyncCommand(FindUserAsync, () => !string.IsNullOrEmpty(Username));
 
         _context.Server.BeginReceiveMessages();
-        _context.Server.OnMessage += Server_OnMessage;
+        _context.Server.NewMessageReceived += Server_OnMessage;
     }
 
     void Server_OnMessage(IMessage message)
     {
         if (message is TextMessage msg)
         {
-            foreach (var contact in Contacts)
+            if(Contacts.Count > 0)
             {
-                if(contact.Chat.ChatID.HasValue && contact.Chat.ChatID == msg.ChatID)
+                foreach (var contact in Contacts)
                 {
-                    contact.Chat.MessageCollection.Add(new Message(contact.User, msg.Content));
-                    return;
+                    if (contact.Chat.ChatID.HasValue && contact.Chat.ChatID == msg.ChatID)
+                    {
+                        contact.Chat.MessageCollection.Add(new Message(contact.User, msg.Content));
+                        return;
+                    }
+                }
+                foreach (var contact in Contacts)
+                {
+                    if (contact.User.UID == msg.Sender)
+                    {
+                        contact.Chat.BindToChat(msg.ChatID);
+                        contact.Chat.MessageCollection.Add(new Message(contact.User, msg.Content));
+                        return;
+                    }
                 }
             }
-            foreach (var contact in Contacts)
-            {
-                if(contact.User.UID == msg.Sender)
-                {
-                    contact.Chat.BindToChat(msg.ChatID);
-                    contact.Chat.MessageCollection.Add(new Message(contact.User, msg.Content));
-                    return;
-                }
-            }
+
             var user = new User() { UID = msg.Sender };
             var newChat = new ChatModel(new ChatParticipants(_context.Config, user), _context);
             newChat.BindToChat(msg.ChatID);
             newChat.MessageCollection.Add(new Message(user, msg.Content));
             var newContact = new ContactModel(user, newChat);
             Contacts.Add(newContact);
-
-            MessageBox.Show("Нет подходящего чата");
         }
         else MessageBox.Show(message.ToString());
     }
@@ -77,8 +80,11 @@ class HomeViewModel : BaseViewModel
         if(response is JsonMessage json)
         {
             var user = json.GetAs<User>();
-            var chat = new ChatModel(new ChatParticipants(_context.Config, user), _context);
-            Contacts.Add(new ContactModel(user, chat));
+            if (!Contacts.Where(c => c.UID == user.UID).Any())
+            {
+                var chat = new ChatModel(new ChatParticipants(_context.Config, user), _context);
+                Contacts.Add(new ContactModel(user, chat));
+            }
             Username = "";
         }
     }
