@@ -2,15 +2,15 @@
 using SimpleMessenger.Core.Messages;
 
 namespace SimpleMessenger.Server.MessageHandlers;
-class RegistrationMessageHandler : ServerMessageHandlerBase<RegistrationMessage>
+class RegistrationMessageHandler : ServerMessageSlimHandler<RegistrationMessage>
 {
     protected override IResponse Process(RegistrationMessage message, ClientHandler client)
     {
         try
         {
-            var newUser = LocalDb.New(message.Login, message.Password, message.Name);
+            var newUser = LocalDb.CreateNewUser(message.Username, message.Password, message.Name);
             client.CurrentUser = newUser;
-            return Json(newUser.GetMainUser());
+            return Json(newUser.GetAsMainUser());
         }
         catch (ServerException ex)
         {

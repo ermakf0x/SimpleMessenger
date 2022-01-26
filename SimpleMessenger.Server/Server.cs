@@ -29,16 +29,17 @@ class Server
             .Bind<RegistrationMessage, RegistrationMessageHandler>()
             .Bind<AuthorizationMessage, AuthorizationMessageHandler>()
             .Bind<FindUserMessage, FindUserMessageHandler>()
-            .Bind<TextSMessage, TextSMessageHandler>()
+            .Bind<GetUserMessage, GetUserMessageHandler>()
             .Bind<CreateNewChatMessage, CreateNewChatMessageHandler>()
-            .Default(msg => Console.WriteLine($"[SERVER] WARNING message type '{msg.GetType().Name}' not supported"))
+            .Bind<TextSMessage, TextSMessageHandler>()
+            .Default(msg => Logger.Warning($"Message type '{msg.GetType().Name}' not supported"))
             .Build();
     }
 
     public void Run()
     {
         _listener.Start(10);
-        Console.WriteLine("[SERVER] Started!!");
+        Logger.Info("Server started!!");
 
         while (true)
         {
@@ -46,7 +47,9 @@ class Server
             {
                 if(_disconnectedQueue.TryDequeue(out var h))
                 {
+                    Logger.Info($"{h.EndPoint} disconnected from server", ConsoleColor.Blue);
                     _handlers.Remove(h);
+                    _connectedUsers.Remove(h.CurrentUser.UID, out _);
                     h.Disconnected -= Handler_Disconnected;
                 }
 
@@ -55,21 +58,25 @@ class Server
             }
 
             var newClient = _listener.AcceptTcpClient();
-            Console.WriteLine($"[SERVER] {newClient.Client.RemoteEndPoint} Connected to server");
+            Logger.Info($"{newClient.Client.RemoteEndPoint} connected to server", ConsoleColor.Green);
             var handler = new ClientHandler(newClient, _serializer, _messageProcessor);
             handler.Disconnected += Handler_Disconnected;
             _handlers.Add(handler);
         }
     }
 
-    public static User2? GetUser(int uid)
+    public static bool TrySetHandler(User2 user)
     {
-        if (_connectedUsers.TryGetValue(uid, out var user)) return user;
-        return null;
+        if (_connectedUsers.TryGetValue(user.UID, out var u))
+        {
+            user.Handler=u.Handler;
+            return true;
+        }
+        return false;
     }
     public static bool TryAddUser(User2 user)
     {
-        if(user == null) return false;
+        if(user?.Handler == null) return false;
         return _connectedUsers.TryAdd(user.UID, user);
     }
 

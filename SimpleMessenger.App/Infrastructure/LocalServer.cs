@@ -1,6 +1,5 @@
 ﻿using SimpleMessenger.Core;
 using System;
-using System.Collections.Concurrent;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -10,9 +9,8 @@ namespace SimpleMessenger.App.Infrastructure;
 
 class LocalServer
 {
-    readonly ConcurrentQueue<IResponse> _messageQueue = new();
-    readonly LocalServerConfig _config;
     readonly ManualResetEvent _mre = new(false);
+    readonly LocalServerConfig _config;
     NetworkChannel? _channel;
     CancellationTokenSource? _cts;
     Task? _workTask;
@@ -72,7 +70,7 @@ class LocalServer
         {
             while (!token.IsCancellationRequested)
             {
-                var msg = await _channel.ReceiveAsync();
+                var msg = await _channel.ReceiveAsync().ConfigureAwait(false);
                 if (msg != null)
                 {
                     if (msg is IResponse res)
@@ -95,7 +93,7 @@ class LocalServer
     {
         if(NewMessageReceived != null)
         {
-            App.Current.Dispatcher.Invoke(() => NewMessageReceived.Invoke(message));
+            App.Current.Dispatcher.InvokeAsync(() => NewMessageReceived.Invoke(message));
         }
     }
 }

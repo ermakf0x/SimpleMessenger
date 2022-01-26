@@ -4,24 +4,19 @@ using SimpleMessenger.Core.Messages;
 
 namespace SimpleMessenger.Server.MessageHandlers;
 
-class CreateNewChatMessageHandler : ServerMessageHandlerBase<CreateNewChatMessage>
+sealed class CreateNewChatMessageHandler : ServerMessageHandler<CreateNewChatMessage>
 {
     protected override IResponse Process(CreateNewChatMessage message, ClientHandler client)
     {
-        if (!message.IsAuth(client)) return Error(ErrorMessage.NotAuthorized);
-
-        var user = LocalDb.GetById(message.Target);
-        if (user is null) return Error(ErrorMessage.UserNotFound);
+        var target = FindUser(user => user.UID == message.Target, client.CurrentUser);
+        if (target == null) return Error(ErrorMessage.UserNotFound);
 
         //TODO: проверить на наличие уже чата и возвращать его
-
         var chat = new Chat(Guid.NewGuid());
 
         //TODO: временно для тестов
-        user = Server.GetUser(user.UID);
-        if (user is not null)
-            user.Handler?.SendAsync(new TextMessage(chat.ChatID, client.CurrentUser.UID, message.HelloMessage));
-
+        if (Server.TrySetHandler(target))
+            target.Handler.SendAsync(new TextMessage(chat.ChatID, client.CurrentUser.UID, message.Message));
 
         return Json(chat.ChatID);
     }

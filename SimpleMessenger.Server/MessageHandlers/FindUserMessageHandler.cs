@@ -3,15 +3,12 @@ using SimpleMessenger.Core.Messages;
 
 namespace SimpleMessenger.Server.MessageHandlers;
 
-class FindUserMessageHandler : ServerMessageHandlerBase<FindUserMessage>
+class FindUserMessageHandler : ServerMessageHandler<FindUserMessage>
 {
     protected override IResponse Process(FindUserMessage message, ClientHandler client)
     {
-        if (!message.IsAuth(client)) return Error(ErrorMessage.NotAuthorized);
-
-        var user = LocalDb.GetByLogin(message.Username);
-        if (user is null) return Error(ErrorMessage.UserNotFound);
-
-        return Json(user.GetUser());
+        var target = FindUser(user => user.Username == message.Username, client.CurrentUser);
+        if (target == null) return Error(ErrorMessage.UserNotFound);
+        return Json(target.GetAsUser());
     }
 }

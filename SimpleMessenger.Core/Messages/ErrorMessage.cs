@@ -24,12 +24,12 @@ public sealed class ErrorMessage : IMessage, IResponse
         Message = reader.ReadString();
     }
 
-    public override string ToString() => $"Message: {Message}";
+    public override string ToString() => $"Code: {Code}; Message: {Message}";
 
     public static ErrorMessage NotAuthorized => new("Пользователь не авторизован", Type.NotAuthorized);
     public static ErrorMessage TokenInvalid => new("Токен недействителен", Type.TokenInvalid);
     public static ErrorMessage PasswordInvalid => new("Неверный пароль", Type.PasswordInvalid);
-    public static ErrorMessage UserNotFound => new("Пользаватель не найден", Type.UserNotFound);
+    public static ErrorMessage UserNotFound => new("Пользователь не найден", Type.UserNotFound);
 
     public enum Type : int
     {

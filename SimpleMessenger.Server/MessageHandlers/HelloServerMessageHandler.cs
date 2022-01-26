@@ -4,7 +4,7 @@ using SimpleMessenger.Core.Model;
 
 namespace SimpleMessenger.Server.MessageHandlers;
 
-class HelloServerMessageHandler : ServerMessageHandlerBase<HelloServerMessage>
+class HelloServerMessageHandler : ServerMessageSlimHandler<HelloServerMessage>
 {
     protected override IResponse Process(HelloServerMessage message, ClientHandler client)
     {
@@ -14,7 +14,7 @@ class HelloServerMessageHandler : ServerMessageHandlerBase<HelloServerMessage>
         if (message.Token == Token.Empty)
             return Error(ErrorMessage.TokenInvalid);
 
-        var user = LocalDb.GetByToken(message.Token);
+        var user = LocalDb.GetUserByToken(message.Token);
         if(user != null)
         {
             client.CurrentUser = user;

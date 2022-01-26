@@ -3,31 +3,31 @@
 public sealed class RegistrationMessage : IMessage
 {
     public MessageType MessageType => MessageType.Registration;
-    public string Login { get; private set; }
+    public string Username { get; private set; }
     public string Password { get; private set; }
     public string Name { get; private set; }
 
     internal RegistrationMessage() { }
-    public RegistrationMessage(string login, string password, string name)
+    public RegistrationMessage(string username, string password, string name)
     {
         // TODO: Нужна проверка валидности логина и пароля
-        Login = login ?? throw new ArgumentNullException(nameof(login));
+        Username = username ?? throw new ArgumentNullException(nameof(username));
         Password = password ?? throw new ArgumentNullException(nameof(password));
-        Name = name ?? login;
+        Name = name ?? username;
     }
 
     void IMessage.Write(DataWriter writer)
     {
-        writer.Write(Login);
+        writer.Write(Username);
         writer.Write(Password);
         writer.Write(Name);
     }
     void IMessage.Read(DataReader reader)
     {
-        Login = reader.ReadString();
+        Username = reader.ReadString();
         Password = reader.ReadString();
         Name = reader.ReadString();
     }
 
-    public override string ToString() => $"Login: {Login}; Password: {Password}; Name: {Name}";
+    public override string ToString() => $"Username: {Username}; Password: {Password}; Name: {Name}";
 }

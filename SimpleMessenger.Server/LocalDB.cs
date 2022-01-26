@@ -1,25 +1,24 @@
-﻿using SimpleMessenger.Core;
-using SimpleMessenger.Core.Model;
+﻿using SimpleMessenger.Core.Model;
 using SimpleMessenger.Server.Model;
 
 namespace SimpleMessenger.Server;
 
 static class LocalDb
 {
-    public static User2 New(string login, string password, string name)
+    public static User2 CreateNewUser(string username, string password, string name)
     {
         using var db = new DataStorage();
 
-        if(db.Users.GetOneByLogin(login) is not null)
+        if(db.Users.GetOneByLogin(username) is not null)
         {
-            throw new UserNameIsTakenException(login);
+            throw new UserNameIsTakenException(username);
         }
 
         var newUser = new User2
         {
             Token = Token.New(),
             Name = name,
-            Username = login,
+            Username = username,
             Password = password,
             RegTime = DateTime.Now,
         };
@@ -36,34 +35,24 @@ static class LocalDb
         db.SaveChanges();
     }
 
-    public static User2? Get(Func<User2, bool> predicate)
+    public static User2? GetUser(Func<User2, bool> predicate)
     {
         using var db = new DataStorage();
         return db.Users.FirstOrDefault(predicate);
     }
-    public static User2? GetById(int id)
+    public static User2? GetUserById(int id)
     {
         using var db = new DataStorage();
         return db.Users.GetOneById(id);
     }
-    public static User2? GetByLogin(string login)
+    public static User2? GetUserByUsername(string username)
     {
         using var db = new DataStorage();
-        return db.Users.GetOneByLogin(login);
+        return db.Users.GetOneByLogin(username);
     }
-    public static User2? GetByToken(Token token)
+    public static User2? GetUserByToken(Token token)
     {
         using var db = new DataStorage();
         return db.Users.GetOneByToken(token);
-    }
-
-    public static bool Contains(Func<User2, bool> predicate)
-    {
-        return Get(predicate) != null;
-    }
-    public static bool ContainsByToken(in Token token)
-    {
-        var t = token;
-        return Contains(u => u.Token == t);
     }
 }

@@ -11,7 +11,7 @@ using SimpleMessenger.Server;
 namespace SimpleMessenger.Server.Migrations
 {
     [DbContext(typeof(DataStorage))]
-    [Migration("20220121193119_InitialCreate")]
+    [Migration("20220126172124_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -41,13 +41,30 @@ namespace SimpleMessenger.Server.Migrations
                         .HasMaxLength(36)
                         .HasColumnType("TEXT");
 
+                    b.Property<int?>("User2UID")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Username")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("UID");
 
+                    b.HasIndex("User2UID");
+
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("SimpleMessenger.Server.Model.User2", b =>
+                {
+                    b.HasOne("SimpleMessenger.Server.Model.User2", null)
+                        .WithMany("Contacts")
+                        .HasForeignKey("User2UID");
+                });
+
+            modelBuilder.Entity("SimpleMessenger.Server.Model.User2", b =>
+                {
+                    b.Navigation("Contacts");
                 });
 #pragma warning restore 612, 618
         }

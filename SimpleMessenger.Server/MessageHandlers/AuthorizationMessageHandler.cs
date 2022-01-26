@@ -4,11 +4,11 @@ using SimpleMessenger.Core.Model;
 
 namespace SimpleMessenger.Server.MessageHandlers;
 
-class AuthorizationMessageHandler : ServerMessageHandlerBase<AuthorizationMessage>
+class AuthorizationMessageHandler : ServerMessageSlimHandler<AuthorizationMessage>
 {
     protected override IResponse Process(AuthorizationMessage message, ClientHandler client)
     {
-        var user = LocalDb.GetByLogin(message.Login);
+        var user = LocalDb.GetUserByUsername(message.Username);
         if (user == null) return Error(ErrorMessage.UserNotFound);
         if (user.Password != message.Password) return Error(ErrorMessage.PasswordInvalid);
 
@@ -16,6 +16,6 @@ class AuthorizationMessageHandler : ServerMessageHandlerBase<AuthorizationMessag
         client.CurrentUser = user;
         LocalDb.Update(user);
 
-        return Json(client.CurrentUser.GetMainUser());
+        return Json(client.CurrentUser.GetAsMainUser());
     }
 }

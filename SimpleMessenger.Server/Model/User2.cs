@@ -5,29 +5,26 @@ namespace SimpleMessenger.Server.Model;
 
 class User2 : MainUser
 {
-    public new Token Token { get; set; }
     public string Username { get; set; }
     public string Password { get; set; }
     public DateTime RegTime { get; set; }
+    public ICollection<User2> Contacts { get; set; }
+
 
     [NotMapped]
     public ClientHandler? Handler { get; set; }
 
-    public MainUser GetMainUser()
+    public MainUser GetAsMainUser() => new()
     {
-        return new MainUser
-        {
-            Token = Token,
-            UID = UID,
-            Name = Name,
-        };
-    }
-    public User GetUser()
+        Token = Token,
+        UID = UID,
+        Name = Name,
+    };
+    public User GetAsUser() => new()
     {
-        return new User
-        {
-            UID = UID,
-            Name = Name,
-        };
-    }
+        UID = UID,
+        Name = Name,
+    };
+
+
 }

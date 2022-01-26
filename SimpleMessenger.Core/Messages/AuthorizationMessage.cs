@@ -3,27 +3,27 @@
 public sealed class AuthorizationMessage : IMessage
 {
     public MessageType MessageType => MessageType.Authorization;
-    public string Login { get; private set; }
+    public string Username { get; private set; }
     public string Password { get; private set; }
 
     internal AuthorizationMessage() { }
-    public AuthorizationMessage(string login, string password)
+    public AuthorizationMessage(string username, string password)
     {
-        Login = login ?? throw new ArgumentNullException(nameof(login));
+        Username = username ?? throw new ArgumentNullException(nameof(username));
         Password = password ?? throw new ArgumentNullException(nameof(password));
     }
 
     void IMessage.Write(DataWriter writer)
     {
-        writer.Write(Login);
+        writer.Write(Username);
         writer.Write(Password);
     }
 
     void IMessage.Read(DataReader reader)
     {
-        Login = reader.ReadString();
+        Username = reader.ReadString();
         Password = reader.ReadString();
     }
 
-    public override string ToString() => $"{Login}:{Password}";
+    public override string ToString() => $"Username: {Username}; Password: {Password}";
 }

@@ -2,20 +2,14 @@
 
 public sealed class Chat
 {
-    readonly List<Message> _messages = new();
-
     public Guid ChatID { get; }
-    public IReadOnlyCollection<Message> Messages => _messages;
+    public ICollection<Message> Messages { get; set; }
     public Message? LastMessage => Messages.LastOrDefault();
 
-    public Chat(Guid chatID)
+    public Chat(Guid chatID) : this(chatID, new List<Message>()) { }
+    public Chat(Guid chatID, ICollection<Message> messages)
     {
         ChatID = chatID;
-    }
-
-    public void AddMessage(Message message)
-    {
-        ArgumentNullException.ThrowIfNull(message);
-        _messages.Add(message);
+        Messages = messages;
     }
 }

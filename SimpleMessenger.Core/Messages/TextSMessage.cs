@@ -27,7 +27,7 @@ public class TextSMessage : ChatableMessage
         Message = reader.ReadString();
     }
 
-    public override string ToString() => Message;
+    public override string ToString() => $"{base.ToString()}; Message: {Message}";
 }
 
 public class TextMessage : IMessage
@@ -35,28 +35,28 @@ public class TextMessage : IMessage
     public MessageType MessageType => MessageType.Text;
     public Guid ChatID { get; private set; }
     public int Sender { get; private set; }
-    public string Content { get; private set; }
+    public string Message { get; private set; }
 
     internal TextMessage() { }
-    public TextMessage(Guid chatID, int sender, string content)
+    public TextMessage(Guid chatID, int sender, string message)
     {
         ChatID = chatID;
         Sender = sender;
-        Content = content;
+        Message = message;
     }
 
     void IMessage.Read(DataReader reader)
     {
         ChatID = reader.Read<Guid>();
         Sender = reader.Read<int>();
-        Content = reader.ReadString();
+        Message = reader.ReadString();
     }
     void IMessage.Write(DataWriter writer)
     {
         writer.Write(ChatID);
         writer.Write(Sender);
-        writer.Write(Content);
+        writer.Write(Message);
     }
 
-    public override string ToString() => Content;
+    public override string ToString() => $"ChatID: {ChatID}; Sender: {Sender}; Message: {Message}";
 }

@@ -3,19 +3,16 @@ using SimpleMessenger.Core.Messages;
 
 namespace SimpleMessenger.Server.MessageHandlers;
 
-class TextSMessageHandler : ServerMessageHandlerBase<TextSMessage>
+class TextSMessageHandler : ServerMessageHandler<TextSMessage>
 {
     protected override IResponse Process(TextSMessage message, ClientHandler client)
     {
-        if (!message.IsAuth(client)) return Error(ErrorMessage.NotAuthorized);
-
-        var user = LocalDb.GetById(message.Target);
-        if (user is null) return Error(ErrorMessage.UserNotFound);
+        var target = FindUser(user => user.UID == message.Target, client.CurrentUser);
+        if (target == null) return Error(ErrorMessage.UserNotFound);
 
         // TODO: временно для тестов
-        user = Server.GetUser(user.UID);
-        if (user is not null)
-            user.Handler.SendAsync(new TextMessage(message.ChatHash, client.CurrentUser.UID, message.Message));
+        if (Server.TrySetHandler(target))
+            target.Handler.SendAsync(new TextMessage(message.ChatID, client.CurrentUser.UID, message.Message));
 
         return Success();
     }

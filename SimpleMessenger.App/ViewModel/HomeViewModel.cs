@@ -48,7 +48,7 @@ class HomeViewModel : BaseViewModel
                 {
                     if (contact.Chat.ChatID.HasValue && contact.Chat.ChatID == msg.ChatID)
                     {
-                        contact.Chat.MessageCollection.Add(new Message(contact.User, msg.Content));
+                        contact.Chat.MessageCollection.Add(new Message(contact.User, msg.Message));
                         return;
                     }
                 }
@@ -57,7 +57,7 @@ class HomeViewModel : BaseViewModel
                     if (contact.User.UID == msg.Sender)
                     {
                         contact.Chat.BindToChat(msg.ChatID);
-                        contact.Chat.MessageCollection.Add(new Message(contact.User, msg.Content));
+                        contact.Chat.MessageCollection.Add(new Message(contact.User, msg.Message));
                         return;
                     }
                 }
@@ -66,8 +66,8 @@ class HomeViewModel : BaseViewModel
             var user = new User() { UID = msg.Sender };
             var newChat = new ChatModel(new ChatParticipants(_context.Config, user), _context);
             newChat.BindToChat(msg.ChatID);
-            newChat.MessageCollection.Add(new Message(user, msg.Content));
-            var newContact = new ContactModel(user, newChat);
+            newChat.MessageCollection.Add(new Message(user, msg.Message));
+            var newContact = new ContactModel(user, newChat, _context);
             Contacts.Add(newContact);
         }
         else MessageBox.Show(message.ToString());
@@ -83,7 +83,7 @@ class HomeViewModel : BaseViewModel
             if (!Contacts.Where(c => c.UID == user.UID).Any())
             {
                 var chat = new ChatModel(new ChatParticipants(_context.Config, user), _context);
-                Contacts.Add(new ContactModel(user, chat));
+                Contacts.Add(new ContactModel(user, chat, _context));
             }
             Username = "";
         }

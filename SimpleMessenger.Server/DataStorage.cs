@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SimpleMessenger.Core;
 using SimpleMessenger.Core.Model;
 using SimpleMessenger.Server.Model;
 
@@ -26,9 +25,11 @@ class DataStorage : DbContext
         builder.Entity<User2>()
             .HasKey(u => u.UID);
 
+
+        // Конвертируем Token в String и обратно
         builder.Entity<User2>()
             .Property(u => u.Token)
-            .HasConversion(t => t.ToString(), s => Token.Parse(s))  // Конвертируем Token в String и обратно
+            .HasConversion(t => t.ToString(), s => Token.Parse(s))
             .HasMaxLength(36);
     }
 }

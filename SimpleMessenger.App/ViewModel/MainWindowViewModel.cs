@@ -95,8 +95,8 @@ class TestViewModel : BaseViewModel
         Test2Command = new AsyncCommand(Test2Async);
     }
 
-    private Task TestAsync() => AuthAsync("test", "qwerty1234");
-    private Task Test2Async() => AuthAsync("test2", "qwerty1324");
+    private Task TestAsync() => AuthAsync("User", "qwerty1234");
+    private Task Test2Async() => AuthAsync("User2", "qwerty1234");
 
     async Task AuthAsync(string username, string password)
     {

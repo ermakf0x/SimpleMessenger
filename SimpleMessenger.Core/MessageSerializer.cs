@@ -18,6 +18,7 @@ public class MessageSerializer : IMessageSerializer
         { MessageType.TextS, () => new TextSMessage() },
         { MessageType.Text, () => new TextMessage() },
         { MessageType.FindUser, () => new FindUserMessage() },
+        { MessageType.GetUser, () => new GetUserMessage() },
         { MessageType.CreateNewChat, () => new CreateNewChatMessage() },
     };
 

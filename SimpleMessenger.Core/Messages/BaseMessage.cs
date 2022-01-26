@@ -26,4 +26,5 @@ public abstract class BaseMessage : ITokenable
 
     protected abstract void Read(DataReader reader);
     protected abstract void Write(DataWriter writer);
+    public override string ToString() => $"Token: {Token}";
 }

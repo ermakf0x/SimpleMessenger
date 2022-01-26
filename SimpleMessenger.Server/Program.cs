@@ -4,6 +4,14 @@ static class Program
 {
     static void Main(string[] args)
     {
-        Server.Instance.Run();
+        Logger.Initialize();
+        try
+        {
+            Server.Instance.Run();
+        }
+        catch (Exception e)
+        {
+            Logger.Fatal(e);
+        }
     }
 }
