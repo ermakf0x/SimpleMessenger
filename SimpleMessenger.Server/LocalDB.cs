@@ -9,7 +9,7 @@ static class LocalDb
     {
         using var db = new DataStorage();
 
-        if(db.Users.GetOneByLogin(username) is not null)
+        if(db.Users.GetOneByUsername(username) is not null)
         {
             throw new UserNameIsTakenException(username);
         }
@@ -30,15 +30,15 @@ static class LocalDb
 
     public static void Update(User2 user)
     {
-        var db = new DataStorage();
+        using var db = new DataStorage();
         db.Users.Update(user);
         db.SaveChanges();
     }
 
-    public static User2? GetUser(Func<User2, bool> predicate)
+    public static User2? GetUser(Func<User2, bool> func)
     {
         using var db = new DataStorage();
-        return db.Users.FirstOrDefault(predicate);
+        return db.Users.GetOne(func);
     }
     public static User2? GetUserById(int id)
     {
@@ -48,7 +48,7 @@ static class LocalDb
     public static User2? GetUserByUsername(string username)
     {
         using var db = new DataStorage();
-        return db.Users.GetOneByLogin(username);
+        return db.Users.GetOneByUsername(username);
     }
     public static User2? GetUserByToken(Token token)
     {

@@ -29,17 +29,17 @@ abstract class ServerMessageHandler<TMsg> : ServerMessageHandlerBaseMethods, IMe
 
     protected static User2? FindUser(Func<User2, bool> func, User2 self)
     {
-        User2? user = null;
-
-        if (self.Contacts != null)
-            user = self.Contacts.Where(func).FirstOrDefault();
-        else self.Contacts = new List<User2>();
+        if (func(self)) return self;
+        User2? user = self.Contacts.Where(f => func(f.Friend)).FirstOrDefault()?.Friend;
 
         if (user == null)
         {
             user = LocalDb.GetUser(func);
             if (user == null) return null;
-            self.Contacts.Add(user);
+            self.Contacts.Add(new Contact
+            {
+                Friend = user
+            });
             LocalDb.Update(self);
         }
 

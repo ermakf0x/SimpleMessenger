@@ -8,8 +8,8 @@ class User2 : MainUser
     public string Username { get; set; }
     public string Password { get; set; }
     public DateTime RegTime { get; set; }
-    public ICollection<User2> Contacts { get; set; }
 
+    public ICollection<Contact> Contacts { get; } = new List<Contact>();
 
     [NotMapped]
     public ClientHandler? Handler { get; set; }
@@ -25,6 +25,4 @@ class User2 : MainUser
         UID = UID,
         Name = Name,
     };
-
-
 }

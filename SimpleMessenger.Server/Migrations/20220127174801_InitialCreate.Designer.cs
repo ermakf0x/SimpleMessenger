@@ -11,13 +11,28 @@ using SimpleMessenger.Server;
 namespace SimpleMessenger.Server.Migrations
 {
     [DbContext(typeof(DataStorage))]
-    [Migration("20220126172124_InitialCreate")]
+    [Migration("20220127174801_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.1");
+
+            modelBuilder.Entity("SimpleMessenger.Server.Model.Contact", b =>
+                {
+                    b.Property<int>("CurrentId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("FriendId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("CurrentId", "FriendId");
+
+                    b.HasIndex("FriendId");
+
+                    b.ToTable("Contact");
+                });
 
             modelBuilder.Entity("SimpleMessenger.Server.Model.User2", b =>
                 {
@@ -41,25 +56,32 @@ namespace SimpleMessenger.Server.Migrations
                         .HasMaxLength(36)
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("User2UID")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("Username")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("UID");
 
-                    b.HasIndex("User2UID");
-
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("SimpleMessenger.Server.Model.User2", b =>
+            modelBuilder.Entity("SimpleMessenger.Server.Model.Contact", b =>
                 {
-                    b.HasOne("SimpleMessenger.Server.Model.User2", null)
+                    b.HasOne("SimpleMessenger.Server.Model.User2", "Current")
                         .WithMany("Contacts")
-                        .HasForeignKey("User2UID");
+                        .HasForeignKey("CurrentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SimpleMessenger.Server.Model.User2", "Friend")
+                        .WithMany()
+                        .HasForeignKey("FriendId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Current");
+
+                    b.Navigation("Friend");
                 });
 
             modelBuilder.Entity("SimpleMessenger.Server.Model.User2", b =>
