@@ -5,11 +5,10 @@ namespace SimpleMessenger.Server.Model;
 
 class User2 : MainUser
 {
-    public string Username { get; set; }
     public string Password { get; set; }
-    public DateTime RegTime { get; set; }
-
-    public ICollection<Contact> Contacts { get; } = new List<Contact>();
+    public DateTime RegDate { get; init; }
+    public ICollection<User2> Contacts { get; } = new List<User2>();
+    public ICollection<Chat> Chats { get; } = new List<Chat>();
 
     [NotMapped]
     public ClientHandler? Handler { get; set; }

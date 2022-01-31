@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace SimpleMessenger.Core.Model;
@@ -23,15 +22,11 @@ public struct Token : IEquatable<Token>
     public static bool operator ==(Token left, Token right) => left.Equals(right);
     public static bool operator !=(Token left, Token right) => !(left == right);
 
-    class TokenToJsonConverter : JsonConverter<Token>
+    sealed class TokenToJsonConverter : JsonConverter<Token>
     {
         public override Token Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        {
-            return new Token { _data = Guid.Parse(reader.GetString()) };
-        }
+            => new Token { _data = Guid.Parse(reader.GetString()) };
         public override void Write(Utf8JsonWriter writer, Token value, JsonSerializerOptions options)
-        {
-            writer.WriteStringValue(value.ToString());
-        }
+            => writer.WriteStringValue(value.ToString());
     }
 }

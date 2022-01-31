@@ -1,17 +1,14 @@
 ﻿namespace SimpleMessenger.Core.Model;
 
-public class Message
+public sealed class Message
 {
-    public User Owner { get; init; }
+    public int Id { get; set; }
+    public DateTime Time { get; init; }
     public string Content { get; set; }
 
-    public Message(User owner, string content)
-    {
-        Owner = owner ?? throw new ArgumentNullException(nameof(owner));
-        Content = content ?? throw new ArgumentNullException(nameof(content));
-    }
+    public int SenderId { get; set; }
+    public User Sender { get; set; }
 
-    public override bool Equals(object? obj) => Owner.Equals(obj);
-    public override int GetHashCode() => Owner.GetHashCode();
-    public override string ToString() => Content;
+    public override string ToString()
+        => $"{Id}, {Sender}, {Content}";
 }

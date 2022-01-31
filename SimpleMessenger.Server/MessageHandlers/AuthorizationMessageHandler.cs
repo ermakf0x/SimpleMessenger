@@ -1,4 +1,5 @@
-﻿using SimpleMessenger.Core;
+﻿using Microsoft.EntityFrameworkCore;
+using SimpleMessenger.Core;
 using SimpleMessenger.Core.Messages;
 using SimpleMessenger.Core.Model;
 
@@ -8,14 +9,19 @@ class AuthorizationMessageHandler : ServerMessageSlimHandler<AuthorizationMessag
 {
     protected override IResponse Process(AuthorizationMessage message, ClientHandler client)
     {
-        var user = LocalDb.GetUserByUsername(message.Username);
-        if (user == null) return Error(ErrorMessage.UserNotFound);
-        if (user.Password != message.Password) return Error(ErrorMessage.PasswordInvalid);
+        var user = client.Storage.Users.Where(u => u.Username == message.Username)
+                                       .Include(u => u.Chats)
+                                       .Include(u => u.Contacts)
+                                       .FirstOrDefault();
+        if (user == null)
+            return Error(ErrorMessage.UserNotFound);
+        if (user.Password != message.Password)
+            return Error(ErrorMessage.PasswordInvalid);
 
         user.Token = Token.New();
+        client.Storage.Update(user);
         client.CurrentUser = user;
-        LocalDb.Update(user);
-
-        return Json(client.CurrentUser.GetAsMainUser());
+        client.Storage.SaveChanges();
+        return Json(user.GetAsMainUser());
     }
 }

@@ -5,15 +5,17 @@ using System.Net.Sockets;
 
 namespace SimpleMessenger.Server;
 
-class ClientHandler
+class ClientHandler : IDisposable
 {
     readonly IMessageProcessor _messageProcessor;
     readonly NetworkChannel _channel;
     readonly Task _workTask;
     User2? _currentUser;
+    bool _disposed;
 
     public event Action<ClientHandler> Disconnected;
 
+    public DataStorage Storage { get; }
     public EndPoint? EndPoint => _channel.Socket.RemoteEndPoint;
     public User2? CurrentUser
     {
@@ -40,6 +42,12 @@ class ClientHandler
 
         _channel = new NetworkChannel(client.GetStream(), serializer);
         _workTask = Task.Factory.StartNew(WorkCycleAsync);
+
+        Storage = new DataStorage();
+    }
+    ~ClientHandler()
+    {
+        DisposeCore();
     }
 
     async Task WorkCycleAsync()
@@ -70,5 +78,19 @@ class ClientHandler
     public override string ToString()
     {
         return _channel.Socket.RemoteEndPoint?.ToString() ?? string.Empty;
+    }
+
+    public void Dispose()
+    {
+        DisposeCore();
+        GC.SuppressFinalize(this);
+    }
+    void DisposeCore()
+    {
+        if (!_disposed)
+        {
+            _disposed = true;
+            Storage.Dispose();
+        }
     }
 }

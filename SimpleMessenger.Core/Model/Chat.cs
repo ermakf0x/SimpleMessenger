@@ -2,14 +2,15 @@
 
 public sealed class Chat
 {
-    public Guid ChatID { get; }
-    public ICollection<Message> Messages { get; set; }
-    public Message? LastMessage => Messages.LastOrDefault();
+    readonly List<Message> _messages = new();
 
-    public Chat(Guid chatID) : this(chatID, new List<Message>()) { }
-    public Chat(Guid chatID, ICollection<Message> messages)
+    public int Id { get; init; }
+    public IReadOnlyList<User> Members { get; init; } = new List<User>(2);
+    public IReadOnlyCollection<Message> Messages => _messages;
+
+    public void AddMessage(Message message)
     {
-        ChatID = chatID;
-        Messages = messages;
+        _messages.Add(message);
     }
+    public override string ToString() => $"{Members[0]?.Name} - {Members[1]?.Name}, Messages: {Messages.Count}";
 }

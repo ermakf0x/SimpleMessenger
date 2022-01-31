@@ -29,7 +29,9 @@ public sealed class ErrorMessage : IMessage, IResponse
     public static ErrorMessage NotAuthorized => new("Пользователь не авторизован", Type.NotAuthorized);
     public static ErrorMessage TokenInvalid => new("Токен недействителен", Type.TokenInvalid);
     public static ErrorMessage PasswordInvalid => new("Неверный пароль", Type.PasswordInvalid);
+    public static ErrorMessage ChatNotFound => new("Чат не найден", Type.ChatNotFound);
     public static ErrorMessage UserNotFound => new("Пользователь не найден", Type.UserNotFound);
+    public static ErrorMessage UsernameIsTaken => new("Имя пользователя занято", Type.UsernameIsTaken);
 
     public enum Type : int
     {
@@ -37,6 +39,8 @@ public sealed class ErrorMessage : IMessage, IResponse
         NotAuthorized,
         TokenInvalid,
         PasswordInvalid,
-        UserNotFound
+        UsernameIsTaken,
+        UserNotFound,
+        ChatNotFound
     }
 }

@@ -11,19 +11,19 @@ namespace SimpleMessenger.App.Model;
 class ChatModel : ObservableObject
 {
     readonly ClientContext _context;
-    Guid? _chatID;
+    int? _chatId;
     ObservableCollection<Message> _messageCollection;
     string _messageText;
 
-    public Guid? ChatID { get => _chatID; private set => _chatID = value; }
+    public int? ChatId { get => _chatId; private set => _chatId = value; }
     public string MessageText { get => _messageText; set => Set(ref _messageText, value); }
     public ObservableCollection<Message> MessageCollection { get => _messageCollection; private set => Set(ref _messageCollection, value); }
     public ICommand SendMessageCommand { get; }
-    public ChatParticipants Participants { get; }
+    public ChatMembers Members { get; }
 
-    public ChatModel(ChatParticipants participants, ClientContext context, Chat? chat = null)
+    public ChatModel(ChatMembers participants, ClientContext context, Chat? chat = null)
     {
-        Participants = participants ?? throw new ArgumentNullException(nameof(participants));
+        Members = participants ?? throw new ArgumentNullException(nameof(participants));
         _context = context ?? throw new ArgumentNullException(nameof(context));
 
         if(chat is null)
@@ -32,7 +32,7 @@ class ChatModel : ObservableObject
         }
         else
         {
-            _chatID = chat.ChatID;
+            _chatId = chat.Id;
             if (chat.Messages != null) MessageCollection = new(chat.Messages);
             else MessageCollection = new ObservableCollection<Message>();
         }
@@ -40,46 +40,58 @@ class ChatModel : ObservableObject
         SendMessageCommand = new AsyncCommand(SendMessageAsync, () => !string.IsNullOrEmpty(MessageText));
     }
 
-    public void BindToChat(Guid chatID)
+    public void BindToChat(int chatId)
     {
-        if (_chatID.HasValue) throw new InvalidOperationException("Этот чат уже был связан с ID чатом");
-        ChatID = chatID;
+        if (_chatId.HasValue) throw new InvalidOperationException("Этот чат уже был связан с ID чатом");
+        ChatId = chatId;
     }
 
     async Task SendMessageAsync()
     {
-        if (_chatID.HasValue)
+        if (_chatId.HasValue)
         {
-            var msg = new TextSMessage(_context.Config.Token, _chatID.Value, Participants.Contact.UID, MessageText);
+            var msg = new TextSMessage(_context.Config.Token, _chatId.Value, Members.Contact.UID, MessageText);
             var response = await _context.Server.SendAsync(msg);
-            if (response is SuccessMessage)
+            if (response is JsonMessage json)
             {
-                AddMessage(MessageText);
+                MessageCollection.Add(new Message
+                {
+                    Id = json.GetAs<int>(),
+                    Time = DateTime.Now,
+                    Content = MessageText,
+                    Sender = Members.Self,
+                    SenderId = Members.Self.UID
+                });
                 MessageText = "";
             }
         }
         else
         {
-            var msg = new CreateNewChatMessage(_context.Config.Token, Participants.Contact.UID, MessageText);
+            var msg = new CreateNewChatMessage(_context.Config.Token, Members.Contact.UID, MessageText);
             var response = await _context.Server.SendAsync(msg);
             if (response is JsonMessage json)
             {
-                _chatID = json.GetAs<Guid>();
-                AddMessage(MessageText);
+                _chatId = json.GetAs<int>();
+                MessageCollection.Add(new Message
+                {
+                    Id = 0,
+                    Time = DateTime.Now,
+                    Content = MessageText,
+                    Sender = Members.Self,
+                    SenderId = Members.Self.UID
+                });
                 MessageText = "";
             }
         }
     }
-
-    void AddMessage(string msg) => MessageCollection.Add(new Message(Participants.Self, msg));
 }
 
-class ChatParticipants
+class ChatMembers
 {
     public User Self { get; }
     public User Contact { get; }
 
-    public ChatParticipants(User self, User contact)
+    public ChatMembers(User self, User contact)
     {
         Self = self ?? throw new ArgumentNullException(nameof(self));
         Contact = contact ?? throw new ArgumentNullException(nameof(contact));

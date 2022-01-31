@@ -46,9 +46,9 @@ class HomeViewModel : BaseViewModel
             {
                 foreach (var contact in Contacts)
                 {
-                    if (contact.Chat.ChatID.HasValue && contact.Chat.ChatID == msg.ChatID)
+                    if (contact.Chat.ChatId.HasValue && contact.Chat.ChatId == msg.ChatId)
                     {
-                        contact.Chat.MessageCollection.Add(new Message(contact.User, msg.Message));
+                        contact.Chat.MessageCollection.Add(msg.Message);
                         return;
                     }
                 }
@@ -56,17 +56,17 @@ class HomeViewModel : BaseViewModel
                 {
                     if (contact.User.UID == msg.Sender)
                     {
-                        contact.Chat.BindToChat(msg.ChatID);
-                        contact.Chat.MessageCollection.Add(new Message(contact.User, msg.Message));
+                        contact.Chat.BindToChat(msg.ChatId);
+                        contact.Chat.MessageCollection.Add(msg.Message);
                         return;
                     }
                 }
             }
 
             var user = new User() { UID = msg.Sender };
-            var newChat = new ChatModel(new ChatParticipants(_context.Config, user), _context);
-            newChat.BindToChat(msg.ChatID);
-            newChat.MessageCollection.Add(new Message(user, msg.Message));
+            var newChat = new ChatModel(new ChatMembers(_context.Config, user), _context);
+            newChat.BindToChat(msg.ChatId);
+            newChat.MessageCollection.Add(msg.Message);
             var newContact = new ContactModel(user, newChat, _context);
             Contacts.Add(newContact);
         }
@@ -82,7 +82,7 @@ class HomeViewModel : BaseViewModel
             var user = json.GetAs<User>();
             if (!Contacts.Where(c => c.UID == user.UID).Any())
             {
-                var chat = new ChatModel(new ChatParticipants(_context.Config, user), _context);
+                var chat = new ChatModel(new ChatMembers(_context.Config, user), _context);
                 Contacts.Add(new ContactModel(user, chat, _context));
             }
             Username = "";

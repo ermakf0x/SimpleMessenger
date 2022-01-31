@@ -8,7 +8,7 @@ public class TextSMessage : ChatableMessage
     public string Message { get; set; }
 
     internal TextSMessage() { }
-    public TextSMessage(Token token, Guid chatHash, int target, string message) : base(token, chatHash, target)
+    public TextSMessage(Token token, int chatId, int target, string message) : base(token, chatId, target)
     {
         if (string.IsNullOrEmpty(message))
         {
@@ -33,30 +33,36 @@ public class TextSMessage : ChatableMessage
 public class TextMessage : IMessage
 {
     public MessageType MessageType => MessageType.Text;
-    public Guid ChatID { get; private set; }
-    public int Sender { get; private set; }
-    public string Message { get; private set; }
+    public int ChatId { get; private set; }
+    public Message Message { get; private set; }
+    public int Sender => Message.SenderId;
 
     internal TextMessage() { }
-    public TextMessage(Guid chatID, int sender, string message)
+    public TextMessage(int chatId, Message message)
     {
-        ChatID = chatID;
-        Sender = sender;
+        ChatId = chatId;
         Message = message;
     }
 
     void IMessage.Read(DataReader reader)
     {
-        ChatID = reader.Read<Guid>();
-        Sender = reader.Read<int>();
-        Message = reader.ReadString();
+        ChatId = reader.Read<int>();
+        Message = new Message
+        {
+            Id = reader.Read<int>(),
+            SenderId = reader.Read<int>(),
+            Time = reader.Read<DateTime>(),
+            Content = reader.ReadString(),
+        };
     }
     void IMessage.Write(DataWriter writer)
     {
-        writer.Write(ChatID);
-        writer.Write(Sender);
-        writer.Write(Message);
+        writer.Write(ChatId);
+        writer.Write(Message.Id);
+        writer.Write(Message.SenderId);
+        writer.Write(Message.Time);
+        writer.Write(Message.Content);
     }
 
-    public override string ToString() => $"ChatID: {ChatID}; Sender: {Sender}; Message: {Message}";
+    public override string ToString() => $"ChatId: {ChatId}; Message: {Message}";
 }

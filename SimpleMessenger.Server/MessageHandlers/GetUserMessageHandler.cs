@@ -7,7 +7,7 @@ class GetUserMessageHandler : ServerMessageHandler<GetUserMessage>
 {
     protected override IResponse Process(GetUserMessage message, ClientHandler client)
     {
-        var target = FindUser(user => user.UID == message.UID, client.CurrentUser);
+        var target = FindUser(user => user.UID == message.UID, client.CurrentUser, client.Storage);
         if (target == null) return Error(ErrorMessage.UserNotFound);
         return Json(target.GetAsUser());
     }

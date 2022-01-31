@@ -5,9 +5,7 @@ using System.Runtime.CompilerServices;
 
 namespace SimpleMessenger.Server.MessageHandlers;
 
-/// <summary>
-/// Оброботчик сообщений с проверкой пользователя на авторизацию
-/// </summary>
+/// <summary> Оброботчик сообщений с проверкой пользователя на авторизацию </summary>
 abstract class ServerMessageHandler<TMsg> : ServerMessageHandlerBaseMethods, IMessageHandler
     where TMsg : IMessage
 {
@@ -15,7 +13,7 @@ abstract class ServerMessageHandler<TMsg> : ServerMessageHandlerBaseMethods, IMe
     {
         var client = state as ClientHandler ?? throw new ArgumentNullException(nameof(state));
         IResponse response;
-        if (IsAuth(message, client))
+        if (IsAuth(message, client, client.Storage))
         {
             response = Process((TMsg)message, client);
             ArgumentNullException.ThrowIfNull(response);
@@ -27,37 +25,34 @@ abstract class ServerMessageHandler<TMsg> : ServerMessageHandlerBaseMethods, IMe
     }
     protected abstract IResponse Process(TMsg message, ClientHandler client);
 
-    protected static User2? FindUser(Func<User2, bool> func, User2 self)
+    protected static User2? FindUser(Func<User2, bool> func, User2 self, DataStorage ds)
     {
         if (func(self)) return self;
-        User2? user = self.Contacts.Where(f => func(f.Friend)).FirstOrDefault()?.Friend;
+
+        User2? user = self.Contacts.FirstOrDefault(func);
 
         if (user == null)
         {
-            user = LocalDb.GetUser(func);
+            user = ds.Users.FirstOrDefault(func);
             if (user == null) return null;
-            self.Contacts.Add(new Contact
-            {
-                Friend = user
-            });
-            LocalDb.Update(self);
+            self.Contacts.Add(user);
+            ds.Update(self);
+            ds.SaveChanges();
         }
 
         return user;
     }
 
-    static bool IsAuth(IMessage message, ClientHandler client)
+    static bool IsAuth(IMessage message, ClientHandler client, DataStorage ds)
     {
         if(client.CurrentUser is not null) return true;
         if (message is ITokenable msg)
-            return LocalDb.GetUserByToken(msg.Token) is not null;
+            return ds.Users.FirstOrDefault(u => u.Token == msg.Token) is not null;
         return false;
     }
 }
 
-/// <summary>
-/// Оброботчик сообщений без проверки пользователя на авторизацию
-/// </summary>
+/// <summary> Оброботчик сообщений без проверки пользователя на авторизацию </summary>
 abstract class ServerMessageSlimHandler<TMsg> : ServerMessageHandlerBaseMethods, IMessageHandler
     where TMsg : IMessage
 {

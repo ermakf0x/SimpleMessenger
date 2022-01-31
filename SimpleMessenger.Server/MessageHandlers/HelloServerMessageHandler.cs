@@ -1,4 +1,5 @@
-﻿using SimpleMessenger.Core;
+﻿using Microsoft.EntityFrameworkCore;
+using SimpleMessenger.Core;
 using SimpleMessenger.Core.Messages;
 using SimpleMessenger.Core.Model;
 
@@ -14,8 +15,11 @@ class HelloServerMessageHandler : ServerMessageSlimHandler<HelloServerMessage>
         if (message.Token == Token.Empty)
             return Error(ErrorMessage.TokenInvalid);
 
-        var user = LocalDb.GetUserByToken(message.Token);
-        if(user != null)
+        var user = client.Storage.Users.Where(u => u.Token == message.Token)
+                                       .Include(u => u.Chats)
+                                       .Include(u => u.Contacts)
+                                       .FirstOrDefault();
+        if (user != null)
         {
             client.CurrentUser = user;
             return Success();
