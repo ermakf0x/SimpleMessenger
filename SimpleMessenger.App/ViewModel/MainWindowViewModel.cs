@@ -13,11 +13,17 @@ sealed class MainWindowViewModel : ObservableObject, IViewModelProvider
     readonly Stack<BaseViewModel> _vmStack = new();
     readonly ClientContext _context;
     BaseViewModel _viewModel;
+    BaseModalViewModel _modalViewModel;
 
     public BaseViewModel ViewModel
     {
         get => _viewModel;
         private set => Set(ref _viewModel, value);
+    }
+    public BaseModalViewModel ModalViewModel
+    {
+        get => _modalViewModel;
+        private set => Set(ref _modalViewModel, value);
     }
 
     public MainWindowViewModel()
@@ -57,13 +63,15 @@ sealed class MainWindowViewModel : ObservableObject, IViewModelProvider
         }
     }
 
-    bool IViewModelProvider.ChangeViewModel(BaseViewModel vm)
+    void IViewModelProvider.SetViewModel(BaseViewModel viewModel)
     {
-        ArgumentNullException.ThrowIfNull(vm);
-        _vmStack.Push(vm);
-        ViewModel?.OnChangedViewModel();
-        ViewModel = vm;
-        return true;
+        ArgumentNullException.ThrowIfNull(viewModel);
+        _vmStack.Push(viewModel);
+        ViewModel = viewModel;
+    }
+    void IViewModelProvider.ShowModal(BaseModalViewModel modal)
+    {
+        ModalViewModel = modal;
     }
     bool IViewModelProvider.Back()
     {
@@ -84,7 +92,7 @@ sealed class MainWindowViewModel : ObservableObject, IViewModelProvider
 
 class TestViewModel : BaseViewModel
 {
-    private readonly ClientContext context;
+    readonly ClientContext context;
     public ICommand TestCommand { get; set; }
     public ICommand Test2Command { get; set; }
     public TestViewModel(IViewModelProvider provider, ClientContext context) : base(provider)
@@ -100,20 +108,22 @@ class TestViewModel : BaseViewModel
 
     async Task AuthAsync(string username, string password)
     {
-        var response = await context.Server.SendAsync(new AuthorizationMessage(username, password));
+        var response = await context.Server.SendAsync(new AuthorizationMessage(username, password)).ConfigureAwait(false);
 
         if (response is JsonMessage json)
         {
             var mainUser = json.GetAs<MainUser>();
             context.Config = new UserConfig(mainUser);
             ConfigManager.Save(context.Config);
-            _provider.ChangeViewModel(new HomeViewModel(_provider, context));
+            using var ls = new LocalStorage();
+            await ls.InitAsync(context.Config).ConfigureAwait(false);
+            SetViewModel(new HomeViewModel(_provider, context));
             return;
         }
 
         if (response is ErrorMessage err)
         {
-            _provider.ChangeViewModel(new ErrorPageViewModel(_provider, err.Message));
+            SetViewModel(new ErrorPageViewModel(_provider, err.Message));
         }
     }
 }

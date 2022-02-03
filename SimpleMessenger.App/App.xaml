@@ -9,6 +9,7 @@
                 <ResourceDictionary Source="Infrastructure/Templates/RegistrationViewModel.xaml"/>
                 <ResourceDictionary Source="Infrastructure/Templates/AuthorizationViewModel.xaml"/>
                 <ResourceDictionary Source="Infrastructure/Templates/ErrorPageViewModel.xaml"/>
+                <ResourceDictionary Source="Infrastructure/Templates/MyContactsViewModel.xaml"/>
                 <ResourceDictionary Source="Infrastructure/Templates/TestViewModel.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>

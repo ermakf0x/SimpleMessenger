@@ -3,6 +3,8 @@
 interface IViewModelProvider
 {
     BaseViewModel ViewModel { get; }
-    bool ChangeViewModel(BaseViewModel vm);
+    BaseModalViewModel ModalViewModel { get; }
+    void SetViewModel(BaseViewModel viewModel);
+    void ShowModal(BaseModalViewModel modal);
     bool Back();
 }

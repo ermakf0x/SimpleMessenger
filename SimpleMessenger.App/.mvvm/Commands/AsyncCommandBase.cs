@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace SimpleMessenger.App;
@@ -12,7 +13,7 @@ abstract class AsyncCommandBase : CommandBase, IAsyncCommand
         {
             await ExecuteAsync(parameter);
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
             MessageBox.Show(ex.ToString(), "Command error");
         }

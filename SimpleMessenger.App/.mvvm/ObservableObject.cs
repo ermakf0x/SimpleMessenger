@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace SimpleMessenger.App;
 
-class ObservableObject : INotifyPropertyChanged
+abstract class ObservableObject : INotifyPropertyChanged
 {
     public event PropertyChangedEventHandler? PropertyChanged;
     protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)

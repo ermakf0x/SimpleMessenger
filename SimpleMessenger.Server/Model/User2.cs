@@ -18,10 +18,12 @@ class User2 : MainUser
         Token = Token,
         UID = UID,
         Name = Name,
+        Username = Username
     };
     public User GetAsUser() => new()
     {
         UID = UID,
         Name = Name,
+        Username = Username
     };
 }

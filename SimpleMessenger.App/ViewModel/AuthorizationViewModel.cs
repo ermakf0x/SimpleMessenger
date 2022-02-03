@@ -31,19 +31,21 @@ class AuthorizationViewModel : BaseViewModel
 
     void CreateNew()
     {
-        _provider.ChangeViewModel(new RegistrationViewModel(_provider, _context));
+        _provider.SetViewModel(new RegistrationViewModel(_provider, _context));
     }
 
     async Task AuthAsync()
     {
         Error = null;
-        var response = await _context.Server.SendAsync(new AuthorizationMessage(Username, Password));
+        var response = await _context.Server.SendAsync(new AuthorizationMessage(Username, Password)).ConfigureAwait(false);
         if(response is JsonMessage json)
         {
             var mainUser = json.GetAs<MainUser>();
             _context.Config = new UserConfig(mainUser);
             ConfigManager.Save(_context.Config);
-            _provider.ChangeViewModel(new HomeViewModel(_provider, _context));
+            using var ls = new LocalStorage();
+            await ls.InitAsync(_context.Config).ConfigureAwait(false);
+            _provider.SetViewModel(new HomeViewModel(_provider, _context));
             return;
         }
 

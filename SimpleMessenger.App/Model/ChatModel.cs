@@ -1,86 +1,50 @@
-﻿using SimpleMessenger.App.Infrastructure;
-using SimpleMessenger.Core.Messages;
-using SimpleMessenger.Core.Model;
+﻿using SimpleMessenger.Core.Model;
 using System;
 using System.Collections.ObjectModel;
-using System.Threading.Tasks;
-using System.Windows.Input;
+using System.Collections.Specialized;
+using System.Linq;
 
 namespace SimpleMessenger.App.Model;
 
 class ChatModel : ObservableObject
 {
-    readonly ClientContext _context;
-    int? _chatId;
-    ObservableCollection<Message> _messageCollection;
-    string _messageText;
+    Message? _lastMessage;
 
-    public int? ChatId { get => _chatId; private set => _chatId = value; }
-    public string MessageText { get => _messageText; set => Set(ref _messageText, value); }
-    public ObservableCollection<Message> MessageCollection { get => _messageCollection; private set => Set(ref _messageCollection, value); }
-    public ICommand SendMessageCommand { get; }
+    public int ChatId { get; private set; } = -1;
+    public Message? LastMessage { get => _lastMessage; private set => Set(ref _lastMessage, value); }
+    public ObservableCollection<Message> MessageCollection { get; }
     public ChatMembers Members { get; }
 
-    public ChatModel(ChatMembers participants, ClientContext context, Chat? chat = null)
+    public ChatModel(ChatMembers members, Chat? chat = null)
     {
-        Members = participants ?? throw new ArgumentNullException(nameof(participants));
-        _context = context ?? throw new ArgumentNullException(nameof(context));
+        Members = members ?? throw new ArgumentNullException(nameof(members));
 
-        if(chat is null)
+        if(chat is not null)
         {
-            MessageCollection = new ObservableCollection<Message>();
+            MessageCollection = new ObservableCollection<Message>(chat.Messages);
+            _lastMessage = MessageCollection.LastOrDefault();
+            ChatId = chat.Id;
         }
-        else
-        {
-            _chatId = chat.Id;
-            if (chat.Messages != null) MessageCollection = new(chat.Messages);
-            else MessageCollection = new ObservableCollection<Message>();
-        }
+        else MessageCollection = new ObservableCollection<Message>();
 
-        SendMessageCommand = new AsyncCommand(SendMessageAsync, () => !string.IsNullOrEmpty(MessageText));
+        MessageCollection.CollectionChanged += MessageCollection_CollectionChanged;
     }
 
-    public void BindToChat(int chatId)
+    public bool TryBindToChat(int chatId)
     {
-        if (_chatId.HasValue) throw new InvalidOperationException("Этот чат уже был связан с ID чатом");
+        if (chatId < 0) throw new InvalidOperationException("Id чата не может быть отрицательный числом");
+        if (ChatId != -1) return false;
         ChatId = chatId;
+        return true;
     }
 
-    async Task SendMessageAsync()
+    void MessageCollection_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
-        if (_chatId.HasValue)
+        if(e.Action == NotifyCollectionChangedAction.Add)
         {
-            var msg = new TextSMessage(_context.Config.Token, _chatId.Value, Members.Contact.UID, MessageText);
-            var response = await _context.Server.SendAsync(msg);
-            if (response is JsonMessage json)
+            if(e.NewItems is not null)
             {
-                MessageCollection.Add(new Message
-                {
-                    Id = json.GetAs<int>(),
-                    Time = DateTime.Now,
-                    Content = MessageText,
-                    Sender = Members.Self,
-                    SenderId = Members.Self.UID
-                });
-                MessageText = "";
-            }
-        }
-        else
-        {
-            var msg = new CreateNewChatMessage(_context.Config.Token, Members.Contact.UID, MessageText);
-            var response = await _context.Server.SendAsync(msg);
-            if (response is JsonMessage json)
-            {
-                _chatId = json.GetAs<int>();
-                MessageCollection.Add(new Message
-                {
-                    Id = 0,
-                    Time = DateTime.Now,
-                    Content = MessageText,
-                    Sender = Members.Self,
-                    SenderId = Members.Self.UID
-                });
-                MessageText = "";
+                LastMessage = e.NewItems[^1] as Message;
             }
         }
     }

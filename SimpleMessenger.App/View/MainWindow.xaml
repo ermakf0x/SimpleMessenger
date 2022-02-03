@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:SimpleMessenger.App.ViewModel"
+        xmlns:c="clr-namespace:SimpleMessenger.App.Infrastructure"
         mc:Ignorable="d"
         Title="Simple Messenger"
         Height="450" Width="800"
@@ -11,6 +12,33 @@
     <Window.DataContext>
         <vm:MainWindowViewModel/>
     </Window.DataContext>
+    <Window.Resources>
+        <c:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+    </Window.Resources>
 
-    <ContentPresenter x:Name="contentPresenter" Content="{Binding ViewModel}"/>
+    <Grid>
+        
+        <ContentPresenter Content="{Binding ViewModel}"/>
+        
+        <Grid DataContext="{Binding ModalViewModel}"
+              Visibility="{Binding Converter={StaticResource NullToVisibilityConverter}}">
+            
+            <Button Command="{Binding CloseModalCommand}">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="OverridesDefaultStyle" Value="True"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate>
+                                    <Border Background="DarkGray" Opacity="0.15"/>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Button.Style>
+            </Button>
+            <ContentPresenter Content="{Binding}"/>
+        </Grid>
+        
+    </Grid>
 </Window>

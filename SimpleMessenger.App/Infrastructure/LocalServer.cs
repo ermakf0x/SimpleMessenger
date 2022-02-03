@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SimpleMessenger.App.Infrastructure;
 
-class LocalServer
+sealed class LocalServer
 {
     readonly ManualResetEvent _mre = new(false);
     readonly LocalServerConfig _config;

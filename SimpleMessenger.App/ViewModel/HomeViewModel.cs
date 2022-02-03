@@ -2,11 +2,9 @@
 using SimpleMessenger.App.Model;
 using SimpleMessenger.Core;
 using SimpleMessenger.Core.Messages;
-using SimpleMessenger.Core.Model;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
@@ -15,77 +13,83 @@ namespace SimpleMessenger.App.ViewModel;
 class HomeViewModel : BaseViewModel
 {
     readonly ClientContext _context;
-    ContactModel _selectedContact;
-    string _username;
 
-    public ContactModel SelectedContact { get => _selectedContact; set => Set(ref _selectedContact, value); }
+    public ChatViewerViewModel ChatViewer { get; }
+    public ObservableCollection<ChatModel> Chats { get; }
     public ObservableCollection<ContactModel> Contacts { get; }
-    public string Username { get => _username; set => Set(ref _username, value); }
     public string CurrentUsername { get; set; }
 
-    public ICommand FindUserCommand { get; }
+    public ICommand ShowMyContactsCommand { get; }
 
     public HomeViewModel(IViewModelProvider provider, ClientContext context) : base(provider)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
 
-        Contacts = new ObservableCollection<ContactModel>();
-        CurrentUsername = context.Config.Name;
+        using (var ls = new LocalStorage())
+        {
+            var self = _context.Config;
+            var chats = ls.Chats.Select(chat => new ChatModel(new ChatMembers(self, chat.Members.Where(user => user != self).First()), chat)).ToList();
+            Contacts = new ObservableCollection<ContactModel>(ls.Contacts.Select(u => new ContactModel(u, _context)).ToList());
+            Chats = new ObservableCollection<ChatModel>(chats);
+        }
 
-        FindUserCommand = new AsyncCommand(FindUserAsync, () => !string.IsNullOrEmpty(Username));
+        CurrentUsername = context.Config.Name;
 
         _context.Server.BeginReceiveMessages();
         _context.Server.NewMessageReceived += Server_OnMessage;
+
+        ChatViewer = new ChatViewerViewModel(this, context);
+        ShowMyContactsCommand = new DelegateCommand(() =>
+        {
+            ShowModal(new MyContactsViewModel(this, _context, _provider));
+        });
     }
 
     void Server_OnMessage(IMessage message)
     {
         if (message is TextMessage msg)
         {
-            if(Contacts.Count > 0)
+            if(ChatViewer.Current != null && ChatViewer.Current.ChatId == msg.ChatId)
             {
-                foreach (var contact in Contacts)
+                ChatViewer.Current.MessageCollection.Add(msg.Message);
+                if (ChatViewer.Current.ChatId == -1)
                 {
-                    if (contact.Chat.ChatId.HasValue && contact.Chat.ChatId == msg.ChatId)
-                    {
-                        contact.Chat.MessageCollection.Add(msg.Message);
-                        return;
-                    }
+                    if (ChatViewer.Current.TryBindToChat(msg.ChatId))
+                        Chats.Add(ChatViewer.Current);
                 }
-                foreach (var contact in Contacts)
+                return;
+            }
+
+            foreach (var chat in Chats)
+            {
+                if (chat.ChatId == msg.ChatId)
                 {
-                    if (contact.User.UID == msg.Sender)
-                    {
-                        contact.Chat.BindToChat(msg.ChatId);
-                        contact.Chat.MessageCollection.Add(msg.Message);
-                        return;
-                    }
+                    chat.MessageCollection.Add(msg.Message);
+                    return;
                 }
             }
 
-            var user = new User() { UID = msg.Sender };
-            var newChat = new ChatModel(new ChatMembers(_context.Config, user), _context);
-            newChat.BindToChat(msg.ChatId);
+            ContactModel? contact = null;
+            foreach (var c in Contacts)
+            {
+                if(c.UID == msg.Sender)
+                {
+                    contact = c;
+                    break;
+                }
+            }
+
+            if (contact is null)
+            {
+                contact = new ContactModel(msg.Sender, _context);
+                Contacts.Add(contact);
+            }
+
+            var newChat = new ChatModel(new ChatMembers(_context.Config, contact.User));
+            newChat.TryBindToChat(msg.ChatId);
             newChat.MessageCollection.Add(msg.Message);
-            var newContact = new ContactModel(user, newChat, _context);
-            Contacts.Add(newContact);
+            Chats.Add(newChat);
         }
         else MessageBox.Show(message.ToString());
-    }
-
-    async Task FindUserAsync()
-    {
-        var response = await _context.Server.SendAsync(new FindUserMessage(Username, _context.Config.Token));
-
-        if(response is JsonMessage json)
-        {
-            var user = json.GetAs<User>();
-            if (!Contacts.Where(c => c.UID == user.UID).Any())
-            {
-                var chat = new ChatModel(new ChatMembers(_context.Config, user), _context);
-                Contacts.Add(new ContactModel(user, chat, _context));
-            }
-            Username = "";
-        }
     }
 }

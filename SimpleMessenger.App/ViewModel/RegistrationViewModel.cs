@@ -33,14 +33,16 @@ class RegistrationViewModel : BaseViewModel
     async Task CreateAsync()
     {
         Error = null;
-        var responce = await _context.Server.SendAsync(new RegistrationMessage(Username, Password, Username));
+        var responce = await _context.Server.SendAsync(new RegistrationMessage(Username, Password, Username)).ConfigureAwait(false);
 
         if(responce is JsonMessage json)
         {
             var user = json.GetAs<MainUser>();
             _context.Config.Token = user.Token;
             ConfigManager.Save(_context.Config);
-            _provider.ChangeViewModel(new HomeViewModel(_provider, _context));
+            using var ls = new LocalStorage();
+            await ls.InitAsync(_context.Config).ConfigureAwait(false);
+            _provider.SetViewModel(new HomeViewModel(_provider, _context));
             return;
         }
 
