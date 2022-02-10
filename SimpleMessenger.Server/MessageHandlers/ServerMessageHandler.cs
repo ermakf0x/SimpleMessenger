@@ -29,12 +29,12 @@ abstract class ServerMessageHandler<TMsg> : ServerMessageHandlerBaseMethods, IMe
     {
         if (func(self)) return self;
 
-        User2? user = self.Contacts.FirstOrDefault(func);
+        var user = self.Contacts.FirstOrDefault(func);
 
-        if (user == null)
+        if (user is null)
         {
             user = ds.Users.FirstOrDefault(func);
-            if (user == null) return null;
+            if (user is null) return null;
             self.Contacts.Add(user);
             ds.Update(self);
             ds.SaveChanges();

@@ -11,7 +11,6 @@ namespace SimpleMessenger.App.ViewModel;
 class ChatViewerViewModel : ObservableObject
 {
     readonly HomeViewModel _homeViewModel;
-    readonly ClientContext _context;
     string? _messageString;
     ChatModel? _current;
 
@@ -20,10 +19,9 @@ class ChatViewerViewModel : ObservableObject
     
     public ICommand SendMessageCommand { get; }
 
-    public ChatViewerViewModel(HomeViewModel homeViewModel, ClientContext context)
+    public ChatViewerViewModel(HomeViewModel homeViewModel)
     {
         _homeViewModel = homeViewModel ?? throw new ArgumentNullException(nameof(homeViewModel));
-        _context = context ?? throw new ArgumentNullException(nameof(context));
         SendMessageCommand = new AsyncCommand(SendMessageAsync, () => Current is not null && !string.IsNullOrWhiteSpace(MessageString));
     }
 
@@ -32,14 +30,14 @@ class ChatViewerViewModel : ObservableObject
         var chat = Current;
         if (chat.ChatId >= 0)
         {
-            var msg = new TextSMessage(_context.Config.Token, chat.ChatId, chat.Members.Contact.UID, MessageString);
-            var response = await _context.Server.SendAsync(msg);
+            var msg = new TextSMessage(Client.User.Token, chat.ChatId, chat.Members.Contact.UID, MessageString);
+            var response = await Client.SendAsync(msg);
             if (response is JsonMessage json)
             {
                 chat.MessageCollection.Add(new Message
                 {
                     Id = json.GetAs<int>(),
-                    Time = DateTime.Now,
+                    Time = TimeOnly.FromDateTime(DateTime.Now),
                     Content = MessageString,
                     Sender = chat.Members.Self,
                     SenderId = chat.Members.Self.UID
@@ -49,8 +47,8 @@ class ChatViewerViewModel : ObservableObject
         }
         else
         {
-            var msg = new CreateNewChatMessage(_context.Config.Token, chat.Members.Contact.UID, MessageString);
-            var response = await _context.Server.SendAsync(msg);
+            var msg = new CreateNewChatMessage(Client.User.Token, chat.Members.Contact.UID, MessageString);
+            var response = await Client.SendAsync(msg);
             if (response is JsonMessage json)
             {
                 if (chat.TryBindToChat(json.GetAs<int>()))
@@ -58,7 +56,7 @@ class ChatViewerViewModel : ObservableObject
                 chat.MessageCollection.Add(new Message
                 {
                     Id = 0,
-                    Time = DateTime.Now,
+                    Time = TimeOnly.FromDateTime(DateTime.Now),
                     Content = MessageString,
                     Sender = chat.Members.Self,
                     SenderId = chat.Members.Self.UID

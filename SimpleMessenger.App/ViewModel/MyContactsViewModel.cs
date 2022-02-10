@@ -13,7 +13,6 @@ namespace SimpleMessenger.App.ViewModel;
 class MyContactsViewModel : BaseModalViewModel
 {
     readonly HomeViewModel _homeViewModel;
-    readonly ClientContext _context;
     ContactModel _selectedContact;
     string? _username;
 
@@ -31,11 +30,10 @@ class MyContactsViewModel : BaseModalViewModel
     public string? Username { get => _username; set => Set(ref _username, value); }
     public ICommand FindUserCommand { get; }
 
-    public MyContactsViewModel(HomeViewModel homeViewModel, ClientContext context, IViewModelProvider provider)
+    public MyContactsViewModel(HomeViewModel homeViewModel, IViewModelProvider provider)
         : base(provider)
     {
         _homeViewModel = homeViewModel ?? throw new ArgumentNullException(nameof(homeViewModel));
-        _context = context ?? throw new ArgumentNullException(nameof(context));
         Contacts = homeViewModel.Contacts;
         FindUserCommand = new AsyncCommand(FindUserAsync, () => !string.IsNullOrEmpty(Username));
     }
@@ -45,8 +43,7 @@ class MyContactsViewModel : BaseModalViewModel
         var chat = _homeViewModel.Chats.FirstOrDefault(c => c.Members.Contact == user);
         if (chat is null)
         {
-            chat = new ChatModel(new ChatMembers(_context.Config, user));
-            _homeViewModel.Chats.Add(chat);
+            chat = new ChatModel(new ChatMembers(Client.User, user));
         }
         _homeViewModel.ChatViewer.Current = chat;
         Close();
@@ -60,7 +57,7 @@ class MyContactsViewModel : BaseModalViewModel
             return;
         }
 
-        var response = await _context.Server.SendAsync(new FindUserMessage(Username, _context.Config.Token)).ConfigureAwait(false);
+        var response = await Client.SendAsync(new FindUserMessage(Username, Client.User.Token)).ConfigureAwait(false);
 
         if (response is JsonMessage json)
         {
@@ -70,8 +67,11 @@ class MyContactsViewModel : BaseModalViewModel
                 ls.Contacts.Add(user);
                 await ls.SaveChangesAsync().ConfigureAwait(false);
             }
-            Contacts.Add(new ContactModel(user, _context));
-            Username = "";
+            _ = App.Current.Dispatcher.InvokeAsync(() =>
+            {
+                Contacts.Add(new ContactModel(user));
+                Username = "";
+            });
         }
     }
 }

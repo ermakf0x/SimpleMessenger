@@ -10,7 +10,6 @@ namespace SimpleMessenger.App.ViewModel;
 
 class AuthorizationViewModel : BaseViewModel
 {
-    readonly ClientContext _context;
     ErrorMessage? _error;
 
     public string Username { get; set; }
@@ -20,32 +19,27 @@ class AuthorizationViewModel : BaseViewModel
     public ICommand CreateNewCommand { get; }
     public IAsyncCommand AuthCommand { get; }
 
-    public AuthorizationViewModel(IViewModelProvider provider, ClientContext context) : base(provider)
+    public AuthorizationViewModel(IViewModelProvider provider) : base(provider)
     {
-        ArgumentNullException.ThrowIfNull(nameof(context));
-        _context = context;
-
         CreateNewCommand = new DelegateCommand(CreateNew);
         AuthCommand = new AsyncCommand(AuthAsync, HasValidData);
     }
 
     void CreateNew()
     {
-        _provider.SetViewModel(new RegistrationViewModel(_provider, _context));
+        _provider.SetViewModel(new RegistrationViewModel(_provider));
     }
 
     async Task AuthAsync()
     {
         Error = null;
-        var response = await _context.Server.SendAsync(new AuthorizationMessage(Username, Password)).ConfigureAwait(false);
+        var response = await Client.SendAsync(new AuthorizationMessage(Username, Password)).ConfigureAwait(false);
         if(response is JsonMessage json)
         {
             var mainUser = json.GetAs<MainUser>();
-            _context.Config = new UserConfig(mainUser);
+            Client.User = mainUser;
             ConfigManager.Save(_context.Config);
-            using var ls = new LocalStorage();
-            await ls.InitAsync(_context.Config).ConfigureAwait(false);
-            _provider.SetViewModel(new HomeViewModel(_provider, _context));
+            SetViewModel(new HomeViewModel(_provider), true);
             return;
         }
 
@@ -57,7 +51,7 @@ class AuthorizationViewModel : BaseViewModel
 
     bool HasValidData()
     {
-        return DataValidator.PasswordValidator.HasValid(Password) && 
-               DataValidator.UsernameValidator.HasValid(Username);
+        return ValidationHelper.ValidatePassword(Password) && 
+               ValidationHelper.ValidateUsername(Username);
     }
 }

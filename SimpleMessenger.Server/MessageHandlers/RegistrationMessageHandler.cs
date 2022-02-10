@@ -13,7 +13,7 @@ class RegistrationMessageHandler : ServerMessageSlimHandler<RegistrationMessage>
                                        .Include(u => u.Chats)
                                        .Include(u => u.Contacts)
                                        .FirstOrDefault();
-        if (user != null)
+        if (user is not null)
             return Error(ErrorMessage.UsernameIsTaken);
 
         user = new User2

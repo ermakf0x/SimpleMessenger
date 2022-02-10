@@ -8,26 +8,31 @@ sealed class CreateNewChatMessageHandler : ServerMessageHandler<CreateNewChatMes
 {
     protected override IResponse Process(CreateNewChatMessage message, ClientHandler client)
     {
-        var target = FindUser(user => user.UID == message.Target, client.CurrentUser, client.Storage);
-        if (target == null) return Error(ErrorMessage.UserNotFound);
-
         var sender = client.CurrentUser;
-        var chat = sender.Chats.FirstOrDefault(c => c.Members.Contains(target));
+        var target = FindUser(user => user.UID == message.Target, sender, client.Storage);
+        if (target is null) return Error(ErrorMessage.UserNotFound);
 
-        if(chat == null)
-        {
-            chat = new Chat { Members = new User[] { target, sender } };
-            client.Storage.Chats.Add(chat);
-        }
-
+        var chat = sender.Chats.FirstOrDefault(c => c.Members.Contains(target), new Chat{ Members = new User[] { target, sender } });
         var msg = new Message
         {
             Sender = sender,
             Content = message.Message,
-            Time = DateTime.Now,
+            Time = TimeOnly.FromDateTime(DateTime.Now),
         };
-
         chat.AddMessage(msg);
+
+        if(chat.Id == 0)
+        {
+            sender.Chats.Add(chat);
+            target.Chats.Add(chat);
+            client.Storage.Chats.Add(chat);
+            client.Storage.Update(sender);
+            client.Storage.Update(target);
+        }
+        else
+        {
+            client.Storage.Update(chat);
+        }
         client.Storage.SaveChanges();
 
 

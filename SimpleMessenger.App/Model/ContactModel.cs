@@ -7,8 +7,6 @@ namespace SimpleMessenger.App.Model;
 
 class ContactModel : ObservableObject
 {
-    readonly ClientContext _context;
-    
     public int UID => User.UID;
     public string Name
     {
@@ -26,17 +24,14 @@ class ContactModel : ObservableObject
     public ChatModel? Chat { get; set; }
 
 
-    public ContactModel(int uid, ClientContext context)
-        : this(new User { UID = uid }, context)
+    public ContactModel(int uid) : this(new User { UID = uid })
     { 
         GetUserInfoAsync(uid);
     }
-    public ContactModel(int uid, string name, ClientContext context)
-        : this(new User { Name = name, UID = uid }, context) { }
-    public ContactModel(User user, ClientContext context)
+    public ContactModel(int uid, string name) : this(new User { Name = name, UID = uid }) { }
+    public ContactModel(User user)
     {
         User = user ?? throw new ArgumentNullException(nameof(user));
-        _context = context ?? throw new ArgumentNullException(nameof(context));
 
         if(User.Name == null)
             GetUserInfoAsync(User.UID);
@@ -46,7 +41,7 @@ class ContactModel : ObservableObject
     {
         try
         {
-            var response = await _context.Server.SendAsync(new GetUserMessage(_context.Config.Token, uid));
+            var response = await Client.SendAsync(new GetUserMessage(Client.User.Token, uid));
             if (response is JsonMessage json)
             {
                 var user = json.GetAs<User>();

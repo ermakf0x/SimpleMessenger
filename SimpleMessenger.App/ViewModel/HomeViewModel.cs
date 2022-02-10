@@ -2,9 +2,9 @@
 using SimpleMessenger.App.Model;
 using SimpleMessenger.Core;
 using SimpleMessenger.Core.Messages;
-using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
@@ -12,8 +12,6 @@ namespace SimpleMessenger.App.ViewModel;
 
 class HomeViewModel : BaseViewModel
 {
-    readonly ClientContext _context;
-
     public ChatViewerViewModel ChatViewer { get; }
     public ObservableCollection<ChatModel> Chats { get; }
     public ObservableCollection<ContactModel> Contacts { get; }
@@ -21,28 +19,40 @@ class HomeViewModel : BaseViewModel
 
     public ICommand ShowMyContactsCommand { get; }
 
-    public HomeViewModel(IViewModelProvider provider, ClientContext context) : base(provider)
+    public HomeViewModel(IViewModelProvider provider) : base(provider)
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
+        CurrentUsername = Client.User.Name;
+        Chats = new ObservableCollection<ChatModel>();
+        Contacts = new ObservableCollection<ContactModel>();
 
-        using (var ls = new LocalStorage())
-        {
-            var self = _context.Config;
-            var chats = ls.Chats.Select(chat => new ChatModel(new ChatMembers(self, chat.Members.Where(user => user != self).First()), chat)).ToList();
-            Contacts = new ObservableCollection<ContactModel>(ls.Contacts.Select(u => new ContactModel(u, _context)).ToList());
-            Chats = new ObservableCollection<ChatModel>(chats);
-        }
+        Client.Instance.MessageReceiveEvent += Server_OnMessage;
 
-        CurrentUsername = context.Config.Name;
-
-        _context.Server.BeginReceiveMessages();
-        _context.Server.NewMessageReceived += Server_OnMessage;
-
-        ChatViewer = new ChatViewerViewModel(this, context);
+        ChatViewer = new ChatViewerViewModel(this);
         ShowMyContactsCommand = new DelegateCommand(() =>
         {
-            ShowModal(new MyContactsViewModel(this, _context, _provider));
+            ShowModal(new MyContactsViewModel(this, _provider));
         });
+    }
+
+    protected override async Task InitAsync()
+    {
+        using var storage = new LocalStorage();
+        var self = Client.User;
+        await storage.InitAsync().ConfigureAwait(false);
+
+        var chats = storage.Chats.ToList();
+        var contacts = storage.Contacts.ToList();
+
+        foreach (var chat in chats)
+            Chats.Add(new ChatModel(self, chat));
+        foreach (var user in contacts)
+            Contacts.Add(new ContactModel(user));
+
+        var response = await Client.SendAsync(new SynchronizationMessage(self.Token, contacts, chats));
+        if(response is JsonMessage json)
+        {
+            var syncState = json.GetAs<Synchronization.State>();
+        }
     }
 
     void Server_OnMessage(IMessage message)
@@ -81,11 +91,11 @@ class HomeViewModel : BaseViewModel
 
             if (contact is null)
             {
-                contact = new ContactModel(msg.Sender, _context);
+                contact = new ContactModel(msg.Sender);
                 Contacts.Add(contact);
             }
 
-            var newChat = new ChatModel(new ChatMembers(_context.Config, contact.User));
+            var newChat = new ChatModel(new ChatMembers(Client.User, contact.User));
             newChat.TryBindToChat(msg.ChatId);
             newChat.MessageCollection.Add(msg.Message);
             Chats.Add(newChat);

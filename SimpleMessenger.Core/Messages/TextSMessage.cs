@@ -51,7 +51,7 @@ public class TextMessage : IMessage
         {
             Id = reader.Read<int>(),
             SenderId = reader.Read<int>(),
-            Time = reader.Read<DateTime>(),
+            Time = reader.Read<TimeOnly>(),
             Content = reader.ReadString(),
         };
     }

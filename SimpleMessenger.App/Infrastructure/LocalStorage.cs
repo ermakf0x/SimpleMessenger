@@ -14,25 +14,34 @@ class LocalStorage : DbContext
     public DbSet<User> Contacts { get; set; }
     public DbSet<Chat> Chats { get; set; }
 
-    public async Task InitAsync(UserConfig config)
+    public Task InitAsync()
     {
-        _dbPath = DbUtils.GenerateDbPath(config);
+        _dbPath = DbUtils.GenerateDbPath(SimpleMessenger.App.Client.User);
         if(!File.Exists(_dbPath))
         {
-            await Database.EnsureCreatedAsync().ConfigureAwait(false);
+            return Database.EnsureCreatedAsync();
         }
-        await Task.WhenAll(Contacts.LoadAsync(), Chats.LoadAsync()).ConfigureAwait(false);
+        return Task.CompletedTask;
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder builder)
         => builder.UseSqlite($"Data Source={_dbPath};");
+
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        builder.Entity<Chat>(chat =>
+        {
+            chat.Navigation(c => c.Members).AutoInclude();
+            chat.Navigation(c => c.Chunks).AutoInclude();
+        });
+    }
 }
 
 static class DbUtils
 {
-    public static string GenerateDbPath(UserConfig config)
+    public static string GenerateDbPath(User user)
     {
-        ArgumentNullException.ThrowIfNull(config, nameof(config));
+        ArgumentNullException.ThrowIfNull(user, nameof(user));
 
         var sep = Path.DirectorySeparatorChar;
         var folder = "SimpleMessenger";
@@ -40,10 +49,10 @@ static class DbUtils
         string fileName;
 
         {
-            Span<byte> bufIn = stackalloc byte[config.Username.Length * 4];
+            Span<byte> bufIn = stackalloc byte[user.Username.Length * 4];
             Span<byte> bufOut = stackalloc byte[128];
             var encoding = Encoding.ASCII;
-            var count = encoding.GetBytes(config.Username, bufIn);
+            var count = encoding.GetBytes(user.Username, bufIn);
             count = MD5.HashData(bufIn[..count], bufOut);
 
             var sb = new StringBuilder(32);

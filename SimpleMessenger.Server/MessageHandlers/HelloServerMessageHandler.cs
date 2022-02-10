@@ -9,7 +9,7 @@ class HelloServerMessageHandler : ServerMessageSlimHandler<HelloServerMessage>
 {
     protected override IResponse Process(HelloServerMessage message, ClientHandler client)
     {
-        if(client.CurrentUser != null)
+        if(client.CurrentUser is not null)
             return Success();
 
         if (message.Token == Token.Empty)

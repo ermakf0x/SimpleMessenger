@@ -25,7 +25,7 @@ public sealed class NetworkChannel
 
     public async Task SendAsync(IMessage message)
     {
-        if (message is null) throw new ArgumentNullException(nameof(message));
+        ArgumentNullException.ThrowIfNull(message, nameof(message));
 
         using var ms = new MemoryStream(256);
         ms.Seek(size, SeekOrigin.Begin);

@@ -12,6 +12,8 @@ public class MessageSerializer : IMessageSerializer
         { MessageType.HelloServer, () => new HelloServerMessage() },
         { MessageType.Registration, () => new RegistrationMessage() },
         { MessageType.Authorization, () => new AuthorizationMessage() },
+        { MessageType.Synchronization, () => new SynchronizationMessage() },
+        { MessageType.SynchronizationContacts, () => new SynchronizationContactsMessage() },
         { MessageType.Success, () => new SuccessMessage() },
         { MessageType.Json, () => new JsonMessage() },
         { MessageType.Error, () => new ErrorMessage() },

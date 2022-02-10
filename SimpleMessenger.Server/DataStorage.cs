@@ -9,8 +9,11 @@ class DataStorage : DbContext
     public string DbPath { get; }
     public DbSet<User2> Users { get; set; }
     public DbSet<Chat> Chats { get; set; }
+    public DbSet<Message> Message { get; set; }
 
+#pragma warning disable CS8618 // Поле, не допускающее значения NULL, должно содержать значение, отличное от NULL, при выходе из конструктора. Возможно, стоит объявить поле как допускающее значения NULL.
     public DataStorage()
+#pragma warning restore CS8618 // Поле, не допускающее значения NULL, должно содержать значение, отличное от NULL, при выходе из конструктора. Возможно, стоит объявить поле как допускающее значения NULL.
     {
         var folder = Environment.SpecialFolder.LocalApplicationData;
         var path = Environment.GetFolderPath(folder);
@@ -32,6 +35,7 @@ class DataStorage : DbContext
         });
 
         builder.Entity<Chat>().Navigation(c => c.Members).AutoInclude();
+        builder.Entity<Chat>().Navigation(c => c.Chunks).AutoInclude();
     }
 }
 /*

@@ -1,5 +1,6 @@
 ﻿using SimpleMessenger.Core.Model;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
@@ -15,18 +16,23 @@ class ChatModel : ObservableObject
     public ObservableCollection<Message> MessageCollection { get; }
     public ChatMembers Members { get; }
 
-    public ChatModel(ChatMembers members, Chat? chat = null)
+    public ChatModel(ChatMembers members)
     {
         Members = members ?? throw new ArgumentNullException(nameof(members));
+        
+        MessageCollection = new ObservableCollection<Message>();
+        MessageCollection.CollectionChanged += MessageCollection_CollectionChanged;
+    }
+    public ChatModel(User self, Chat chat)
+    {
+        ArgumentNullException.ThrowIfNull(self, nameof(self));
+        ArgumentNullException.ThrowIfNull(chat, nameof(chat));
 
-        if(chat is not null)
-        {
-            MessageCollection = new ObservableCollection<Message>(chat.Messages);
-            _lastMessage = MessageCollection.LastOrDefault();
-            ChatId = chat.Id;
-        }
-        else MessageCollection = new ObservableCollection<Message>();
+        Members = new ChatMembers(self, chat.Members);
 
+        MessageCollection = new();// new ObservableCollection<Message>(chat.Messages);
+        _lastMessage = MessageCollection.LastOrDefault();
+        ChatId = chat.Id;
         MessageCollection.CollectionChanged += MessageCollection_CollectionChanged;
     }
 
@@ -59,5 +65,11 @@ class ChatMembers
     {
         Self = self ?? throw new ArgumentNullException(nameof(self));
         Contact = contact ?? throw new ArgumentNullException(nameof(contact));
+    }
+    public ChatMembers(User self, IEnumerable<User> members)
+    {
+        ArgumentNullException.ThrowIfNull(members, nameof(members));
+        Self = self;
+        Contact = members.FirstOrDefault(u => u != self) ?? throw new ArgumentException();
     }
 }

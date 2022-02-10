@@ -8,22 +8,22 @@ class TextSMessageHandler : ServerMessageHandler<TextSMessage>
 {
     protected override IResponse Process(TextSMessage message, ClientHandler client)
     {
-        var target = FindUser(user => user.UID == message.Target, client.CurrentUser, client.Storage);
-        if (target == null) return Error(ErrorMessage.UserNotFound);
-
         var sender = client.CurrentUser;
+        var target = FindUser(user => user.UID == message.Target, sender, client.Storage);
+        if (target is null) return Error(ErrorMessage.UserNotFound);
+
         var chat = sender.Chats.FirstOrDefault(c => c.Members.Contains(target));
 
-        if(chat != null)
+        if(chat is not null)
         {
             var msg = new Message
             {
                 Sender = sender,
                 Content = message.Message,
-                Time = DateTime.Now,
+                Time = TimeOnly.FromDateTime(DateTime.Now),
             };
             chat.AddMessage(msg);
-            client.Storage.Chats.Update(chat);
+            client.Storage.Update(chat);
             client.Storage.SaveChanges();
 
             // TODO: временно для тестов

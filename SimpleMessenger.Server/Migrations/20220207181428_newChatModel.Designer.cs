@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SimpleMessenger.Server;
 
@@ -10,9 +11,10 @@ using SimpleMessenger.Server;
 namespace SimpleMessenger.Server.Migrations
 {
     [DbContext(typeof(DataStorage))]
-    partial class DataStorageModelSnapshot : ModelSnapshot
+    [Migration("20220207181428_newChatModel")]
+    partial class newChatModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.1");
@@ -21,9 +23,6 @@ namespace SimpleMessenger.Server.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("Hash")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("LastTimeModified")
@@ -44,10 +43,7 @@ namespace SimpleMessenger.Server.Migrations
                     b.Property<DateOnly>("CreationTime")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("ChatId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("Hash")
+                    b.Property<int>("ChatId")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("LastTimeModified")
@@ -73,7 +69,7 @@ namespace SimpleMessenger.Server.Migrations
                     b.Property<int>("SenderId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<TimeOnly>("Time")
+                    b.Property<DateTime>("Time")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -146,9 +142,13 @@ namespace SimpleMessenger.Server.Migrations
 
             modelBuilder.Entity("SimpleMessenger.Core.Model.ChunkChat", b =>
                 {
-                    b.HasOne("SimpleMessenger.Core.Model.Chat", null)
+                    b.HasOne("SimpleMessenger.Core.Model.Chat", "Chat")
                         .WithMany("Chunks")
-                        .HasForeignKey("ChatId");
+                        .HasForeignKey("ChatId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Chat");
                 });
 
             modelBuilder.Entity("SimpleMessenger.Core.Model.Message", b =>

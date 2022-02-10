@@ -10,14 +10,14 @@ class ClientHandler : IDisposable
     readonly IMessageProcessor _messageProcessor;
     readonly NetworkChannel _channel;
     readonly Task _workTask;
-    User2? _currentUser;
+    User2 _currentUser;
     bool _disposed;
 
     public event Action<ClientHandler> Disconnected;
 
     public DataStorage Storage { get; }
     public EndPoint? EndPoint => _channel.Socket.RemoteEndPoint;
-    public User2? CurrentUser
+    public User2 CurrentUser
     {
         get => _currentUser;
         set
@@ -39,11 +39,10 @@ class ClientHandler : IDisposable
         ArgumentNullException.ThrowIfNull(client, nameof(client));
         ArgumentNullException.ThrowIfNull(serializer, nameof(serializer));
         _messageProcessor = messageProcessor ?? throw new ArgumentNullException(nameof(messageProcessor));
+        Storage = new DataStorage();
 
         _channel = new NetworkChannel(client.GetStream(), serializer);
         _workTask = Task.Factory.StartNew(WorkCycleAsync);
-
-        Storage = new DataStorage();
     }
     ~ClientHandler()
     {

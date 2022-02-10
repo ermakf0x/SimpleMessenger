@@ -28,6 +28,8 @@ class Server
             .Bind<HelloServerMessage, HelloServerMessageHandler>()
             .Bind<RegistrationMessage, RegistrationMessageHandler>()
             .Bind<AuthorizationMessage, AuthorizationMessageHandler>()
+            .Bind<SynchronizationMessage, SynchronizationMessageHandler>()
+            .Bind<SynchronizationContactsMessage, SynchronizationContactsMessageHandler>()
             .Bind<FindUserMessage, FindUserMessageHandler>()
             .Bind<GetUserMessage, GetUserMessageHandler>()
             .Bind<CreateNewChatMessage, CreateNewChatMessageHandler>()

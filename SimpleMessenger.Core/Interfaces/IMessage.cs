@@ -12,6 +12,8 @@ public enum MessageType : int
     HelloServer,
     Registration,
     Authorization,
+    Synchronization,
+    SynchronizationContacts,
     Error,
     Success,
     Json,

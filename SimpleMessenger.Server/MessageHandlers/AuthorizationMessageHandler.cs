@@ -13,7 +13,7 @@ class AuthorizationMessageHandler : ServerMessageSlimHandler<AuthorizationMessag
                                        .Include(u => u.Chats)
                                        .Include(u => u.Contacts)
                                        .FirstOrDefault();
-        if (user == null)
+        if (user is null)
             return Error(ErrorMessage.UserNotFound);
         if (user.Password != message.Password)
             return Error(ErrorMessage.PasswordInvalid);

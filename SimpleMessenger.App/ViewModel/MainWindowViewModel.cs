@@ -11,7 +11,6 @@ namespace SimpleMessenger.App.ViewModel;
 sealed class MainWindowViewModel : ObservableObject, IViewModelProvider
 {
     readonly Stack<BaseViewModel> _vmStack = new();
-    readonly ClientContext _context;
     BaseViewModel _viewModel;
     BaseModalViewModel _modalViewModel;
 
@@ -28,31 +27,25 @@ sealed class MainWindowViewModel : ObservableObject, IViewModelProvider
 
     public MainWindowViewModel()
     {
-        var config = ConfigManager.Load<LocalServerConfig>();
-        _context = new ClientContext
-        {
-            Server = new LocalServer(config),
-            Config = ConfigManager.Load<UserConfig>(),
-        };
-        
-        InitSMClient();
+        _ = InitClientAsync();
     }
 
-    async void InitSMClient()
+    async Task InitClientAsync()
     {
+        var config = ClientConfig.Load(out _);
         try
         {
-            await _context.Server.ConnectToServerAsync();
-            ViewModel = new TestViewModel(this, _context);
+            await Client.ConnectAsync(config);
+            ViewModel = new TestViewModel(this);
             return;
 
 
-            var response = await _context.Server.SendAsync(new HelloServerMessage(_context.Config.Token));
+            var response = await Client.SendAsync(new HelloServerMessage(Client.User.Token));
 
             ViewModel = response switch
             {
-                SuccessMessage => new HomeViewModel(this, _context),
-                ErrorMessage err when err.Code == ErrorMessage.Type.TokenInvalid => new AuthorizationViewModel(this, _context),
+                SuccessMessage => new HomeViewModel(this),
+                ErrorMessage err when err.Code == ErrorMessage.Type.TokenInvalid => new AuthorizationViewModel(this),
                 ErrorMessage err => new ErrorPageViewModel(this, err.ToString()),
                 _ => new ErrorPageViewModel(this, "Что-то пошло не так(((")
             };
@@ -92,13 +85,10 @@ sealed class MainWindowViewModel : ObservableObject, IViewModelProvider
 
 class TestViewModel : BaseViewModel
 {
-    readonly ClientContext context;
     public ICommand TestCommand { get; set; }
     public ICommand Test2Command { get; set; }
-    public TestViewModel(IViewModelProvider provider, ClientContext context) : base(provider)
+    public TestViewModel(IViewModelProvider provider) : base(provider)
     {
-        this.context = context;
-
         TestCommand = new AsyncCommand(TestAsync);
         Test2Command = new AsyncCommand(Test2Async);
     }
@@ -108,16 +98,14 @@ class TestViewModel : BaseViewModel
 
     async Task AuthAsync(string username, string password)
     {
-        var response = await context.Server.SendAsync(new AuthorizationMessage(username, password)).ConfigureAwait(false);
+        var response = await Client.SendAsync(new AuthorizationMessage(username, password)).ConfigureAwait(false);
 
         if (response is JsonMessage json)
         {
             var mainUser = json.GetAs<MainUser>();
-            context.Config = new UserConfig(mainUser);
+            Client.User = mainUser;
             ConfigManager.Save(context.Config);
-            using var ls = new LocalStorage();
-            await ls.InitAsync(context.Config).ConfigureAwait(false);
-            SetViewModel(new HomeViewModel(_provider, context));
+            SetViewModel(new HomeViewModel(_provider), true);
             return;
         }
 
