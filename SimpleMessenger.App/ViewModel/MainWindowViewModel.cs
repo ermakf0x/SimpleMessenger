@@ -1,4 +1,5 @@
 ﻿using SimpleMessenger.App.Infrastructure;
+using SimpleMessenger.App.Infrastructure.Utils;
 using SimpleMessenger.Core.Messages;
 using SimpleMessenger.Core.Model;
 using System;
@@ -39,7 +40,14 @@ sealed class MainWindowViewModel : ObservableObject, IViewModelProvider
             ViewModel = new TestViewModel(this);
             return;
 
+            var user = Helper.LoadMainUser();
+            if (user is null)
+            {
+                ((IViewModelProvider)this).SetViewModel(new AuthorizationViewModel(this));
+                return;
+            }
 
+            Client.User = user;
             var response = await Client.SendAsync(new HelloServerMessage(Client.User.Token));
 
             ViewModel = response switch
@@ -104,7 +112,7 @@ class TestViewModel : BaseViewModel
         {
             var mainUser = json.GetAs<MainUser>();
             Client.User = mainUser;
-            ConfigManager.Save(context.Config);
+            Helper.SaveMainUser(mainUser);
             SetViewModel(new HomeViewModel(_provider), true);
             return;
         }

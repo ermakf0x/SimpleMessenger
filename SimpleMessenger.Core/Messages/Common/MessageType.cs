@@ -1,11 +1,4 @@
-﻿namespace SimpleMessenger.Core;
-
-public interface IMessage
-{
-    MessageType MessageType { get; }
-    void Write(DataWriter writer);
-    void Read(DataReader reader);
-}
+﻿namespace SimpleMessenger.Core.Messages;
 
 public enum MessageType : int
 {
@@ -13,12 +6,15 @@ public enum MessageType : int
     Registration,
     Authorization,
     Synchronization,
+    SynchronizationChats,
+    SynchronizationChat,
     SynchronizationContacts,
     Error,
     Success,
     Json,
     FindUser,
     GetUser,
+    GetChat,
     CreateNewChat,
     TextS,
     Text

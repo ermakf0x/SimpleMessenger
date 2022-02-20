@@ -1,4 +1,5 @@
 ﻿using SimpleMessenger.Core;
+using SimpleMessenger.Core.Messages;
 using SimpleMessenger.Server.Model;
 using System.Net;
 using System.Net.Sockets;

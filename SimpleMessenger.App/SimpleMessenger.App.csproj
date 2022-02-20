@@ -29,8 +29,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.2" />
   </ItemGroup>
 
   <ItemGroup>
@@ -38,23 +38,23 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Page Update="Infrastructure\Templates\MyContactsViewModel.xaml">
+    <Page Update="Themes\MyContactsViewModel.xaml">
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
       <SubType>Designer</SubType>
     </Page>
-    <Page Update="Infrastructure\Templates\TestViewModel.xaml">
+    <Page Update="Themes\TestViewModel.xaml">
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
       <SubType>Designer</SubType>
     </Page>
-    <Page Update="Infrastructure\Templates\HomeViewModel.xaml">
+    <Page Update="Themes\HomeViewModel.xaml">
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
       <SubType>Designer</SubType>
     </Page>
-    <Page Update="Infrastructure\Templates\RegistrationViewModel.xaml">
+    <Page Update="Themes\RegistrationViewModel.xaml">
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
       <SubType>Designer</SubType>
     </Page>
-    <Page Update="Infrastructure\Templates\ErrorPageViewModel.xaml">
+    <Page Update="Themes\ErrorPageViewModel.xaml">
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
       <SubType>Designer</SubType>
     </Page>

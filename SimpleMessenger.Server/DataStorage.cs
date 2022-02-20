@@ -34,8 +34,12 @@ class DataStorage : DbContext
             .HasMaxLength(36);
         });
 
-        builder.Entity<Chat>().Navigation(c => c.Members).AutoInclude();
-        builder.Entity<Chat>().Navigation(c => c.Chunks).AutoInclude();
+        builder.Entity<Chat>(chat =>
+        {
+            chat.Navigation(c => c.Chunks).AutoInclude();
+        });
+
+        builder.Entity<ChunkChat>().HasKey(c => new { c.OwnerId, c.CreationTime });
     }
 }
 /*

@@ -11,10 +11,10 @@ public static class HashCodeCombiner
         {
             T first = enumerator.Current;
             var counter = 1;
-            var hash = new HashCode();
+            var hash = ComputeHash(0, first);
             while (enumerator.MoveNext())
             {
-                hash.Add(enumerator.Current);
+                hash = ComputeHash(hash, enumerator.Current);
                 counter++;
             }
 
@@ -23,7 +23,7 @@ public static class HashCodeCombiner
                 if (first is null) return 0;
                 return first.GetHashCode();
             }
-            return hash.ToHashCode();
+            return hash;
         }
         return 0;
     }
@@ -38,25 +38,29 @@ public static class HashCodeCombiner
             return first.GetHashCode();
         }
 
-        var hash = new HashCode();
+        var hash = 0;
         foreach (var item in items)
-            hash.Add(item);
-        return hash.ToHashCode();
+            hash = ComputeHash(hash, item);
+        return hash;
     }
 
-    public static int Combine<T>(IList<T> items)
+    public static int ComputeHash<T1>(T1 a)
     {
-        if (items is null || items.Count == 0) return 0;
-        if (items.Count == 1)
+        unchecked
         {
-            var first = items[0];
-            if (first is null) return 0;
-            return first.GetHashCode();
+            int hash = 17;
+            hash = hash * 31 + a?.GetHashCode() ?? 0;
+            return hash;
         }
-
-        var hash = new HashCode();
-        foreach (var item in items)
-            hash.Add(item);
-        return hash.ToHashCode();
+    }
+    public static int ComputeHash<T1, T2>(T1 a, T2 b)
+    {
+        unchecked
+        {
+            int hash = 17;
+            hash = hash * 31 + a?.GetHashCode() ?? 0;
+            hash = hash * 31 + b?.GetHashCode() ?? 0;
+            return hash;
+        }
     }
 }

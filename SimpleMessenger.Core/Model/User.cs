@@ -20,7 +20,7 @@ public class User : IEquatable<User>
     public override string ToString() => $"UID = {UID}; Name = {Name ?? "user"}";
 
     public static bool operator ==(User a, User b) => a.Equals(b);
-    public static bool operator !=(User a, User b) => a != b;
+    public static bool operator !=(User a, User b) => !(a == b);
 }
 
 public class MainUser : User

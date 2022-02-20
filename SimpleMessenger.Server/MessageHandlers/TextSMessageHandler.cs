@@ -12,7 +12,7 @@ class TextSMessageHandler : ServerMessageHandler<TextSMessage>
         var target = FindUser(user => user.UID == message.Target, sender, client.Storage);
         if (target is null) return Error(ErrorMessage.UserNotFound);
 
-        var chat = sender.Chats.FirstOrDefault(c => c.Members.Contains(target));
+        var chat = sender.Chats.FirstOrDefault(c => c.IsMember(target));
 
         if(chat is not null)
         {

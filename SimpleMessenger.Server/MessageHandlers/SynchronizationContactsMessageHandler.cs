@@ -10,7 +10,14 @@ class SynchronizationContactsMessageHandler : ServerMessageHandler<Synchronizati
         var sender = client.CurrentUser;
         if(message.UIDs?.Length == 0 && sender.Contacts.Count > 0)
         {
-            return Json(sender.Contacts.Select(contact => contact.GetAsUser()).ToArray());
+            return Json(new[]
+            {
+                new SyncOperation<int>
+                {
+                    Operation = SyncOperationType.Add,
+                    Values = sender.Contacts.Select(x => x.UID).ToArray(),
+                }
+            });
         }
 
         // Список users которые нужно удалить на клиенте
@@ -30,6 +37,18 @@ class SynchronizationContactsMessageHandler : ServerMessageHandler<Synchronizati
             }
         }
 
-        return Success();
+        return Json(new[]
+        {
+            new SyncOperation<int>
+            {
+                Operation = SyncOperationType.Remove,
+                Values = mustDeleted.ToArray()
+            },
+            new SyncOperation<int>
+            {
+                Operation = SyncOperationType.Add,
+                Values = contacts.ToArray()
+            }
+        });
     }
 }

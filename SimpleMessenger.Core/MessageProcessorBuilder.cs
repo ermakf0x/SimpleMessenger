@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using SimpleMessenger.Core.Messages;
+using System.Collections.ObjectModel;
 
 namespace SimpleMessenger.Core;
 

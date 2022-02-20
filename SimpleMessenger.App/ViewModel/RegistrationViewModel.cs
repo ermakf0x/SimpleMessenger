@@ -1,4 +1,5 @@
 ﻿using SimpleMessenger.App.Infrastructure;
+using SimpleMessenger.App.Infrastructure.Utils;
 using SimpleMessenger.Core;
 using SimpleMessenger.Core.Messages;
 using SimpleMessenger.Core.Model;
@@ -32,9 +33,9 @@ class RegistrationViewModel : BaseViewModel
 
         if(responce is JsonMessage json)
         {
-            var user = json.GetAs<MainUser>();
-            Client.User.Token = user.Token;
-            ConfigManager.Save(_context.Config);
+            var mainUser = json.GetAs<MainUser>();
+            Client.User = mainUser;
+            Helper.SaveMainUser(mainUser);
             SetViewModel(new HomeViewModel(_provider), true);
             return;
         }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Net;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -24,27 +23,18 @@ class ClientConfig
 
     public void Save()
     {
-        using var fs = File.Open(GetFullPath(), FileMode.Create);
-        JsonSerializer.Serialize(fs, this, new JsonSerializerOptions() { WriteIndented = true });
+        JsonStorage.Save(this);
     }
     public static ClientConfig Load(out bool isDefault)
     {
-        isDefault = true;
-        try
+        var result = JsonStorage.Load<ClientConfig>();
+        if(result is null)
         {
-            using var fs = File.OpenRead(GetFullPath());
-            var config = JsonSerializer.Deserialize<ClientConfig>(fs);
-            if(config is not null)
-            {
-                isDefault = false;
-                return config;
-            }
+            isDefault = true;
             return CreateDefault();
         }
-        catch
-        {
-            return CreateDefault();
-        }
+        isDefault = false;
+        return result;
     }
     static ClientConfig CreateDefault()
     {
@@ -54,7 +44,6 @@ class ClientConfig
             Port = 7777
         };
     }
-    static string GetFullPath() => Environment.CurrentDirectory + "\\" + typeof(ClientConfig).Name + ".json";
 
     class IPAddressJsonConverter : JsonConverter<IPAddress>
     {

@@ -11,13 +11,13 @@ using SimpleMessenger.Server;
 namespace SimpleMessenger.Server.Migrations
 {
     [DbContext(typeof(DataStorage))]
-    [Migration("20220207181428_newChatModel")]
-    partial class newChatModel
+    [Migration("20220218141422_UpdateChatModel2")]
+    partial class UpdateChatModel2
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "6.0.1");
+            modelBuilder.HasAnnotation("ProductVersion", "6.0.2");
 
             modelBuilder.Entity("SimpleMessenger.Core.Model.Chat", b =>
                 {
@@ -25,8 +25,17 @@ namespace SimpleMessenger.Server.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("FirstUserID")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Hash")
+                        .HasColumnType("INTEGER");
+
                     b.Property<DateTime>("LastTimeModified")
                         .HasColumnType("TEXT");
+
+                    b.Property<int>("SecondUserID")
+                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("User2UID")
                         .HasColumnType("INTEGER");
@@ -40,18 +49,19 @@ namespace SimpleMessenger.Server.Migrations
 
             modelBuilder.Entity("SimpleMessenger.Core.Model.ChunkChat", b =>
                 {
+                    b.Property<int>("OwnerId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<DateOnly>("CreationTime")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("ChatId")
+                    b.Property<int>("Hash")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("LastTimeModified")
                         .HasColumnType("TEXT");
 
-                    b.HasKey("CreationTime");
-
-                    b.HasIndex("ChatId");
+                    b.HasKey("OwnerId", "CreationTime");
 
                     b.ToTable("ChunkChat");
                 });
@@ -62,6 +72,12 @@ namespace SimpleMessenger.Server.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<DateOnly?>("ChunkChatCreationTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("ChunkChatOwnerId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -69,12 +85,14 @@ namespace SimpleMessenger.Server.Migrations
                     b.Property<int>("SenderId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime>("Time")
+                    b.Property<TimeOnly>("Time")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
                     b.HasIndex("SenderId");
+
+                    b.HasIndex("ChunkChatOwnerId", "ChunkChatCreationTime");
 
                     b.ToTable("Message");
                 });
@@ -83,9 +101,6 @@ namespace SimpleMessenger.Server.Migrations
                 {
                     b.Property<int>("UID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int?>("ChatId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Discriminator")
@@ -101,8 +116,6 @@ namespace SimpleMessenger.Server.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("UID");
-
-                    b.HasIndex("ChatId");
 
                     b.ToTable("User");
 
@@ -142,13 +155,13 @@ namespace SimpleMessenger.Server.Migrations
 
             modelBuilder.Entity("SimpleMessenger.Core.Model.ChunkChat", b =>
                 {
-                    b.HasOne("SimpleMessenger.Core.Model.Chat", "Chat")
+                    b.HasOne("SimpleMessenger.Core.Model.Chat", "Owner")
                         .WithMany("Chunks")
-                        .HasForeignKey("ChatId")
+                        .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Chat");
+                    b.Navigation("Owner");
                 });
 
             modelBuilder.Entity("SimpleMessenger.Core.Model.Message", b =>
@@ -159,14 +172,11 @@ namespace SimpleMessenger.Server.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Sender");
-                });
+                    b.HasOne("SimpleMessenger.Core.Model.ChunkChat", null)
+                        .WithMany("Messages")
+                        .HasForeignKey("ChunkChatOwnerId", "ChunkChatCreationTime");
 
-            modelBuilder.Entity("SimpleMessenger.Core.Model.User", b =>
-                {
-                    b.HasOne("SimpleMessenger.Core.Model.Chat", null)
-                        .WithMany("Members")
-                        .HasForeignKey("ChatId");
+                    b.Navigation("Sender");
                 });
 
             modelBuilder.Entity("SimpleMessenger.Server.Model.User2", b =>
@@ -179,8 +189,11 @@ namespace SimpleMessenger.Server.Migrations
             modelBuilder.Entity("SimpleMessenger.Core.Model.Chat", b =>
                 {
                     b.Navigation("Chunks");
+                });
 
-                    b.Navigation("Members");
+            modelBuilder.Entity("SimpleMessenger.Core.Model.ChunkChat", b =>
+                {
+                    b.Navigation("Messages");
                 });
 
             modelBuilder.Entity("SimpleMessenger.Server.Model.User2", b =>

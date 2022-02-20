@@ -13,6 +13,8 @@ public class MessageSerializer : IMessageSerializer
         { MessageType.Registration, () => new RegistrationMessage() },
         { MessageType.Authorization, () => new AuthorizationMessage() },
         { MessageType.Synchronization, () => new SynchronizationMessage() },
+        { MessageType.SynchronizationChats, () => new SynchronizationChatsMessage() },
+        { MessageType.SynchronizationChat, () => new SynchronizationChatMessage() },
         { MessageType.SynchronizationContacts, () => new SynchronizationContactsMessage() },
         { MessageType.Success, () => new SuccessMessage() },
         { MessageType.Json, () => new JsonMessage() },
@@ -21,6 +23,7 @@ public class MessageSerializer : IMessageSerializer
         { MessageType.Text, () => new TextMessage() },
         { MessageType.FindUser, () => new FindUserMessage() },
         { MessageType.GetUser, () => new GetUserMessage() },
+        { MessageType.GetChat, () => new GetChatMessage() },
         { MessageType.CreateNewChat, () => new CreateNewChatMessage() },
     };
 

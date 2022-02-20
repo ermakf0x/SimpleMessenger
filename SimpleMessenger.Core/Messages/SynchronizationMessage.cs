@@ -9,7 +9,7 @@ public class SynchronizationMessage : BaseMessage
     public int ChatHash { get; private set; }
 
     internal SynchronizationMessage() { }
-    public SynchronizationMessage(Token token, ICollection<User> contacts, ICollection<Chat> chats) : base(token)
+    public SynchronizationMessage(Token token, IEnumerable<User> contacts, IEnumerable<Chat> chats) : base(token)
     {
         UserHash = HashCodeCombiner.Combine(contacts);
         ChatHash = HashCodeCombiner.Combine(chats);
@@ -27,23 +27,4 @@ public class SynchronizationMessage : BaseMessage
     }
 
     public override string ToString() => $"UserHash: { UserHash}; ChatHash: {ChatHash}";
-}
-
-public static class Synchronization
-{
-    [Flags]
-    public enum State : byte
-    {
-        SyncSuccess         = 0,
-        MustSyncContacts    = 1,
-        MustSyncChats       = 2,
-        MustSyncAll         = MustSyncContacts | MustSyncChats,
-    }
-
-    public enum Operation : byte
-    {
-        Add,
-        Remove,
-        Update
-    }
 }

@@ -15,12 +15,18 @@ class HelloServerMessageHandler : ServerMessageSlimHandler<HelloServerMessage>
         if (message.Token == Token.Empty)
             return Error(ErrorMessage.TokenInvalid);
 
-        var user = client.Storage.Users.Where(u => u.Token == message.Token)
-                                       .Include(u => u.Chats)
-                                       .Include(u => u.Contacts)
-                                       .FirstOrDefault();
-        if (user != null)
+        var user = client.Storage.Users
+            .Where(u => u.Token == message.Token)
+            .FirstOrDefault();
+
+        if (user is not null)
         {
+            user = client.Storage.Users
+                .Where(u => u.UID == user.UID)
+                .Include(u => u.Chats.Where(c => c.FirstUserID == user.UID || c.SecondUserID == user.UID))
+                .Include(u => u.Contacts)
+                .First();
+
             client.CurrentUser = user;
             return Success();
         }

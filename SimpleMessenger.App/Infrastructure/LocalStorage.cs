@@ -16,10 +16,17 @@ class LocalStorage : DbContext
 
     public Task InitAsync()
     {
-        _dbPath = DbUtils.GenerateDbPath(SimpleMessenger.App.Client.User);
-        if(!File.Exists(_dbPath))
+        try
         {
-            return Database.EnsureCreatedAsync();
+            _dbPath = DbUtils.GenerateDbPath(Client.User);
+            if (!File.Exists(_dbPath))
+            {
+                return Database.EnsureCreatedAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+
         }
         return Task.CompletedTask;
     }
@@ -31,9 +38,12 @@ class LocalStorage : DbContext
     {
         builder.Entity<Chat>(chat =>
         {
-            chat.Navigation(c => c.Members).AutoInclude();
+            //chat.HasKey(c => new { c.Id });
+            //chat.Navigation(c => c.Members).AutoInclude();
             chat.Navigation(c => c.Chunks).AutoInclude();
         });
+
+        builder.Entity<ChunkChat>().HasKey(c => new { c.OwnerId, c.CreationTime });
     }
 }
 

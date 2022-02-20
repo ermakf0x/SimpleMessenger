@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
-namespace SimpleMessenger.App.Infrastructure;
+namespace SimpleMessenger.App.Infrastructure.Converters;
 
 class NullToVisibilityConverter : IValueConverter
 {

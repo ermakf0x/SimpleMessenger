@@ -38,7 +38,7 @@ public sealed class JsonMessage : IMessage, IResponse
     }
     void IMessage.Write(DataWriter writer)
     {
-        var json = _data == null ? string.Empty : JsonSerializer.Serialize(_data);
+        var json = JsonSerializer.Serialize(_data ?? string.Empty);
         writer.Write(json);
     }
     void IMessage.Read(DataReader reader)

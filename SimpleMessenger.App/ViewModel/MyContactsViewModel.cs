@@ -1,9 +1,7 @@
 ﻿using SimpleMessenger.App.Infrastructure;
 using SimpleMessenger.App.Model;
-using SimpleMessenger.Core.Messages;
 using SimpleMessenger.Core.Model;
 using System;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -26,16 +24,13 @@ class MyContactsViewModel : BaseModalViewModel
                 BeginChat(_selectedContact.User);
         }
     }
-    public ObservableCollection<ContactModel> Contacts { get; }
     public string? Username { get => _username; set => Set(ref _username, value); }
     public ICommand FindUserCommand { get; }
 
-    public MyContactsViewModel(HomeViewModel homeViewModel, IViewModelProvider provider)
-        : base(provider)
+    public MyContactsViewModel(HomeViewModel homeViewModel, IViewModelProvider provider) : base(provider)
     {
         _homeViewModel = homeViewModel ?? throw new ArgumentNullException(nameof(homeViewModel));
-        Contacts = homeViewModel.Contacts;
-        FindUserCommand = new AsyncCommand(FindUserAsync, () => !string.IsNullOrEmpty(Username));
+        FindUserCommand = new AsyncCommand(FindUserAsync, () => !string.IsNullOrWhiteSpace(Username));
     }
 
     void BeginChat(User user)
@@ -51,27 +46,7 @@ class MyContactsViewModel : BaseModalViewModel
 
     async Task FindUserAsync()
     {
-        if (Contacts.Where(c => c.User.Username == Username).Any())
-        {
-            Username = "";
-            return;
-        }
-
-        var response = await Client.SendAsync(new FindUserMessage(Username, Client.User.Token)).ConfigureAwait(false);
-
-        if (response is JsonMessage json)
-        {
-            var user = json.GetAs<User>();
-            using (var ls = new LocalStorage())
-            {
-                ls.Contacts.Add(user);
-                await ls.SaveChangesAsync().ConfigureAwait(false);
-            }
-            _ = App.Current.Dispatcher.InvokeAsync(() =>
-            {
-                Contacts.Add(new ContactModel(user));
-                Username = "";
-            });
-        }
+        await ContactsManager.FindUserAsync(Username).ConfigureAwait(false);
+        Username = "";
     }
 }

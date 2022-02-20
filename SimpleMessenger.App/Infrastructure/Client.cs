@@ -1,4 +1,6 @@
-﻿using SimpleMessenger.Core;
+﻿using SimpleMessenger.App.ViewModel;
+using SimpleMessenger.Core;
+using SimpleMessenger.Core.Messages;
 using SimpleMessenger.Core.Model;
 using System;
 using System.Net.Sockets;
@@ -8,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace SimpleMessenger.App.Infrastructure;
 
-sealed class Client
+sealed class Client : ObservableObject
 {
     readonly ManualResetEvent _resetEvent = new(false);
     readonly ClientConfig _config;
@@ -24,7 +26,6 @@ sealed class Client
     private Client(ClientConfig config)
     {
         _config = config;
-        _cts = new CancellationTokenSource();
     }
 
     public static Task ConnectAsync(ClientConfig config)
@@ -38,6 +39,16 @@ sealed class Client
         {
             Instance.BeginReceiveMessages();
         });
+    }
+    public static async Task<bool> BeginSynchronizationAsync(HomeViewModel homeViewModel)
+    {
+        ArgumentNullException.ThrowIfNull(homeViewModel, nameof(homeViewModel));
+        var user = User ?? throw new InvalidOperationException();
+        var chats = homeViewModel.Chats;
+        Instance.EndReceiveMessages();
+        var result = await new Synchronization(Instance._channel, user, chats).BeginSynchronizationAsync();
+        Instance.BeginReceiveMessages();
+        return result;
     }
     public static Task<IResponse> SendAsync(IMessage message)
     {
@@ -66,6 +77,7 @@ sealed class Client
     {
         if (_workTask == null)
         {
+            _cts = new CancellationTokenSource();
             _workTask = Task.Factory.StartNew(ReceiveMessageCycleAsync, _cts.Token);
         }
     }
@@ -75,7 +87,6 @@ sealed class Client
         {
             _cts.Cancel();
             _cts.Dispose();
-            _cts.TryReset();
             _workTask = null;
         }
     }
@@ -97,7 +108,7 @@ sealed class Client
                     }
                     else OnMessageReceive(msg);
                 }
-                Thread.Sleep(1);
+                await Task.Delay(1, token);
             }
         }
         catch (Exception ex)

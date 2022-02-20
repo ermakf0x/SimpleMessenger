@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.ComponentModel.DataAnnotations;
 
 namespace SimpleMessenger.Core.Model;
 
@@ -7,10 +6,12 @@ public class ChunkChat : ICollection<Message>, IReadOnlyCollection<Message>
 {
     readonly List<Message> _messages = new();
 
-    [Key]
     public DateOnly CreationTime { get; init; }
     public DateTime LastTimeModified { get; private set; }
-    public int Hash { get; private set; }
+    public int OwnerId { get; init; }
+    public Chat Owner { get; init; }
+    public IReadOnlyCollection<Message> Messages => _messages;
+    public int Hash { get; set; }
     public int Count => _messages.Count;
 
     public ChunkChat()

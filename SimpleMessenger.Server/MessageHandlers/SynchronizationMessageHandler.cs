@@ -9,16 +9,16 @@ class SynchronizationMessageHandler : ServerMessageHandler<SynchronizationMessag
 {
     protected override IResponse Process(SynchronizationMessage message, ClientHandler client)
     {
-        var syncState = Synchronization.State.MustSyncAll;
+        var syncState = SyncState.MustSyncAll;
         var sender = client.CurrentUser;
         var userHash = HashCodeCombiner.Combine(sender.Contacts);
         var chatHash = HashCodeCombiner.Combine(sender.Chats);
 
         //TODO: Возможно стоило бы переписать без 'if'
         if (message.UserHash == userHash)
-            syncState &= Synchronization.State.MustSyncChats;
+            syncState &= SyncState.MustSyncChats;
         if (message.ChatHash == chatHash)
-            syncState &= Synchronization.State.MustSyncContacts;
+            syncState &= SyncState.MustSyncContacts;
 
         return Json(syncState);
     }

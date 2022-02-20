@@ -12,7 +12,7 @@ sealed class CreateNewChatMessageHandler : ServerMessageHandler<CreateNewChatMes
         var target = FindUser(user => user.UID == message.Target, sender, client.Storage);
         if (target is null) return Error(ErrorMessage.UserNotFound);
 
-        var chat = sender.Chats.FirstOrDefault(c => c.Members.Contains(target), new Chat{ Members = new User[] { target, sender } });
+        var chat = sender.Chats.FirstOrDefault(c => c.IsMember(target), new Chat(sender, target));
         var msg = new Message
         {
             Sender = sender,

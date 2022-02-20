@@ -1,4 +1,5 @@
 ﻿using SimpleMessenger.App.Infrastructure;
+using SimpleMessenger.App.Infrastructure.Utils;
 using SimpleMessenger.Core;
 using SimpleMessenger.Core.Messages;
 using SimpleMessenger.Core.Model;
@@ -38,7 +39,7 @@ class AuthorizationViewModel : BaseViewModel
         {
             var mainUser = json.GetAs<MainUser>();
             Client.User = mainUser;
-            ConfigManager.Save(_context.Config);
+            Helper.SaveMainUser(mainUser);
             SetViewModel(new HomeViewModel(_provider), true);
             return;
         }

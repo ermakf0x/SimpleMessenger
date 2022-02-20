@@ -1,6 +1,7 @@
-﻿using SimpleMessenger.Core.Model;
+﻿using SimpleMessenger.App.Infrastructure;
+using SimpleMessenger.Core;
+using SimpleMessenger.Core.Model;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
@@ -12,6 +13,7 @@ class ChatModel : ObservableObject
     Message? _lastMessage;
 
     public int ChatId { get; private set; } = -1;
+    public Chat Base { get; }
     public Message? LastMessage { get => _lastMessage; private set => Set(ref _lastMessage, value); }
     public ObservableCollection<Message> MessageCollection { get; }
     public ChatMembers Members { get; }
@@ -26,11 +28,11 @@ class ChatModel : ObservableObject
     public ChatModel(User self, Chat chat)
     {
         ArgumentNullException.ThrowIfNull(self, nameof(self));
-        ArgumentNullException.ThrowIfNull(chat, nameof(chat));
+        Base = chat ?? throw new ArgumentNullException(nameof(chat));
 
-        Members = new ChatMembers(self, chat.Members);
+        Members = new ChatMembers(self, chat);
 
-        MessageCollection = new();// new ObservableCollection<Message>(chat.Messages);
+        MessageCollection = new ObservableCollection<Message>(chat.Chunks.SelectMany(a => a.Messages));
         _lastMessage = MessageCollection.LastOrDefault();
         ChatId = chat.Id;
         MessageCollection.CollectionChanged += MessageCollection_CollectionChanged;
@@ -54,6 +56,8 @@ class ChatModel : ObservableObject
             }
         }
     }
+
+    public override string ToString() => Base?.ToString() ?? Members.ToString();
 }
 
 class ChatMembers
@@ -66,10 +70,28 @@ class ChatMembers
         Self = self ?? throw new ArgumentNullException(nameof(self));
         Contact = contact ?? throw new ArgumentNullException(nameof(contact));
     }
-    public ChatMembers(User self, IEnumerable<User> members)
+    public ChatMembers(User self, Chat chat)
     {
-        ArgumentNullException.ThrowIfNull(members, nameof(members));
+        ArgumentNullException.ThrowIfNull(self, nameof(self));
+        ArgumentNullException.ThrowIfNull(chat, nameof(chat));
+
         Self = self;
-        Contact = members.FirstOrDefault(u => u != self) ?? throw new ArgumentException();
+        if (chat.IsPrivate())
+        {
+            Contact = self;
+            return;
+        }
+
+        var id = -1;
+        if(chat.FirstUserID != self.UID)
+        {
+            id = chat.FirstUserID;
+        }
+        else if(chat.SecondUserID != self.UID)
+        {
+            id = chat.SecondUserID;
+        }
+
+        Contact = ContactsManager.GetById(id)?.User;
     }
 }

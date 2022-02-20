@@ -1,4 +1,6 @@
-﻿namespace SimpleMessenger.Core;
+﻿using SimpleMessenger.Core.Messages;
+
+namespace SimpleMessenger.Core;
 
 public interface IMessageSerializer
 {

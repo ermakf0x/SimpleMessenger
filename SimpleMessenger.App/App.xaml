@@ -5,12 +5,12 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Infrastructure/Templates/HomeViewModel.xaml"/>
-                <ResourceDictionary Source="Infrastructure/Templates/RegistrationViewModel.xaml"/>
-                <ResourceDictionary Source="Infrastructure/Templates/AuthorizationViewModel.xaml"/>
-                <ResourceDictionary Source="Infrastructure/Templates/ErrorPageViewModel.xaml"/>
-                <ResourceDictionary Source="Infrastructure/Templates/MyContactsViewModel.xaml"/>
-                <ResourceDictionary Source="Infrastructure/Templates/TestViewModel.xaml"/>
+                <ResourceDictionary Source="../Themes/HomeViewModel.xaml"/>
+                <ResourceDictionary Source="../Themes/RegistrationViewModel.xaml"/>
+                <ResourceDictionary Source="../Themes/AuthorizationViewModel.xaml"/>
+                <ResourceDictionary Source="../Themes/ErrorPageViewModel.xaml"/>
+                <ResourceDictionary Source="../Themes/MyContactsViewModel.xaml"/>
+                <ResourceDictionary Source="../Themes/TestViewModel.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

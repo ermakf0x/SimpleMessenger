@@ -48,7 +48,7 @@ class ChatViewerViewModel : ObservableObject
         else
         {
             var msg = new CreateNewChatMessage(Client.User.Token, chat.Members.Contact.UID, MessageString);
-            var response = await Client.SendAsync(msg);
+            var response = await Client.SendAsync(msg);//.ConfigureAwait(false);
             if (response is JsonMessage json)
             {
                 if (chat.TryBindToChat(json.GetAs<int>()))
@@ -62,7 +62,7 @@ class ChatViewerViewModel : ObservableObject
                     SenderId = chat.Members.Self.UID
                 });
                 MessageString = "";
-                
+
             }
         }
     }
